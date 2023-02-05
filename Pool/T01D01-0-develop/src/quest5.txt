@@ -1,0 +1,6 @@
+vim
+i - insert
+del - delete
+Esc - escape
+:wq
+ 

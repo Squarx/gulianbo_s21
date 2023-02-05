@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"unistd.h": "c",
+			"curses.h": "c",
+			"stdio.h": "c",
+			"windows.h": "c",
+			"stdlib.h": "c"
+		}
+	}
+}
