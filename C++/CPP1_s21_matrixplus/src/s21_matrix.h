@@ -21,7 +21,7 @@ class S21Matrix {
   S21Matrix();                                                // default constructor
   S21Matrix(int rows, int cols);                              // parameterized constructor
   S21Matrix(const S21Matrix& other);                            // copy cnstructor
-  S21Matrix(S21Matrix&& other);                                   // move cnstructor
+  S21Matrix(S21Matrix&& other) noexcept;                       // move cnstructor
   ~S21Matrix();                                               // destructor
 
   // some operators overloads
@@ -37,6 +37,10 @@ class S21Matrix {
   bool EqMatrix(const S21Matrix& other);
   void SumMatrix(const S21Matrix& other);
   void SubMatrix(const S21Matrix& other);
+  void MulNumber(const double num);
+  void MulMatrix(const S21Matrix& other);
+  void delete_matrix(S21Matrix* A);
+  void create_matrix(S21Matrix* A, int rows, int cols);
   void S21_Print();
   void S21_Fill();
 };
