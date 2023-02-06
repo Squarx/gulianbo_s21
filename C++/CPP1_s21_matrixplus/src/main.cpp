@@ -10,7 +10,7 @@ int main() {
   S21Matrix A = S21Matrix();
    A.S21_Fill();
   A.S21_Print();
-  A.set(0, 1, 4);
+  A.set(0, 1, 5);
 //  A._p[0][1] = 2;
    S21Matrix CALC = A.InverseMatrix();
    CALC.S21_Print();

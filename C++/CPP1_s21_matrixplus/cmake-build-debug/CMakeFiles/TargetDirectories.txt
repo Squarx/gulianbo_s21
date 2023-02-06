@@ -1,0 +1,3 @@
+C:/Users/DimasX/Desktop/GitHub/gulianbo_s21/C++/CPP1_s21_matrixplus/cmake-build-debug/CMakeFiles/CPP1_s21_matrixplus.dir
+C:/Users/DimasX/Desktop/GitHub/gulianbo_s21/C++/CPP1_s21_matrixplus/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/DimasX/Desktop/GitHub/gulianbo_s21/C++/CPP1_s21_matrixplus/cmake-build-debug/CMakeFiles/rebuild_cache.dir
