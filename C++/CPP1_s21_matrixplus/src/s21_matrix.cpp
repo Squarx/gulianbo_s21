@@ -23,9 +23,9 @@ S21Matrix::~S21Matrix() {
     delete[] _p;
   }
 }
-S21Matrix::S21Matrix(S21Matrix&& other) noexcept{
-  if (_p  && (_rows == other._rows &&  _cols == other._cols)) {
-    for(int i = 0; i < _rows; i++) {
+S21Matrix::S21Matrix(S21Matrix &&other) noexcept {
+  if (_p && (_rows == other._rows && _cols == other._cols)) {
+    for (int i = 0; i < _rows; i++) {
       memcpy(_p[i], other._p[i], sizeof(double) * _cols);
     }
   } else {
@@ -38,7 +38,7 @@ S21Matrix::S21Matrix(S21Matrix&& other) noexcept{
     for (int i = 0; i < other._rows; ++i) {
       _p[i] = new double[other._cols];
     }
-    for(int i = 0; i < other._rows; i++) {
+    for (int i = 0; i < other._rows; i++) {
       memcpy(_p[i], other._p[i], sizeof(double) * other._cols);
     }
   }
@@ -71,10 +71,10 @@ void S21Matrix::S21_Print() {
 void S21Matrix::S21_Fill() {
   for (int i = 0, x = 0; i < _rows; i++)
     for (int j = 0; j < _cols; ++j, ++x)
-      _p[i][j] = x * x;
+      _p[i][j] = x;
 }
 
-bool S21Matrix::EqMatrix(const S21Matrix& other) {
+bool S21Matrix::EqMatrix(const S21Matrix &other) {
   bool res = SUCCESS;
   if (_cols != other._cols || _rows != other._rows) res = FAILURE;
   for (int i = 0; res && i < _rows; i++)
@@ -83,7 +83,7 @@ bool S21Matrix::EqMatrix(const S21Matrix& other) {
         res = FAILURE;
   return res;
 }
-void S21Matrix::SumMatrix(const S21Matrix& other) {
+void S21Matrix::SumMatrix(const S21Matrix &other) {
   try {
     if (_rows != other._rows || _cols != other._cols) {
       throw std::out_of_range(
@@ -93,11 +93,11 @@ void S21Matrix::SumMatrix(const S21Matrix& other) {
       for (auto j = 0; j < _cols; j++)
         _p[i][j] += other._p[i][j];
   }
-  catch (std::out_of_range& e) {
+  catch (std::out_of_range &e) {
     std::cout << e.what() << std::endl;
   }
 }
-void S21Matrix::SubMatrix(const S21Matrix& other) {
+void S21Matrix::SubMatrix(const S21Matrix &other) {
   try {
     if (_rows != other._rows || _cols != other._cols) {
       throw std::out_of_range(
@@ -107,12 +107,12 @@ void S21Matrix::SubMatrix(const S21Matrix& other) {
       for (auto j = 0; j < _cols; j++)
         _p[i][j] -= other._p[i][j];
   }
-  catch (std::out_of_range& e) {
+  catch (std::out_of_range &e) {
     std::cout << e.what() << std::endl;
   }
 }
 
-S21Matrix::S21Matrix(const S21Matrix& other) {
+S21Matrix::S21Matrix(const S21Matrix &other) {
   _rows = other._rows;
   _cols = other._cols;
   _p = new double *[_rows];
@@ -129,8 +129,7 @@ void S21Matrix::MulNumber(const double num) {
       _p[i][j] *= num;
 }
 
-
-void S21Matrix::MulMatrix(const S21Matrix& other) {
+void S21Matrix::MulMatrix(const S21Matrix &other) {
   try {
     if (_cols != other._rows) {
       throw std::out_of_range(
@@ -153,11 +152,19 @@ void S21Matrix::MulMatrix(const S21Matrix& other) {
         _p[i][j] = C._p[i][j];
       }
   }
-  catch(std::out_of_range& e)  {
-      std::cout << e.what() << std::endl;
+  catch (std::out_of_range &e) {
+    std::cout << e.what() << std::endl;
   }
 }
-void S21Matrix::delete_matrix(S21Matrix* A) {
+S21Matrix S21Matrix::Transpose() {
+  S21Matrix Transposed = S21Matrix(_cols, _rows);
+  for (int i = 0; i < _rows; i++)
+    for (int j = 0; j < _cols; ++j) {
+      Transposed._p[j][i] = _p[i][j];
+    }
+  return Transposed;
+}
+void S21Matrix::delete_matrix(S21Matrix *A) {
   for (int i = 0; i < A->_rows; i++)
     delete[] A->_p[i];
   delete[] A->_p;
@@ -165,7 +172,7 @@ void S21Matrix::delete_matrix(S21Matrix* A) {
   A->_rows = 0;
   A->_cols = 0;
 }
-void S21Matrix::create_matrix(S21Matrix* A, int rows, int cols) {
+void S21Matrix::create_matrix(S21Matrix *A, int rows, int cols) {
   A->_p = new double *[rows];
   for (int i = 0; i < rows; ++i) {
     A->_p[i] = new double[cols];
@@ -173,28 +180,151 @@ void S21Matrix::create_matrix(S21Matrix* A, int rows, int cols) {
   A->_rows = rows;
   A->_cols = cols;
 }
+// TODO
+S21Matrix S21Matrix::CalcComplements() {
+  S21Matrix COMP = S21Matrix(_rows, _cols);;
+  try {
+    if (_rows != _cols)
+      throw std::out_of_range("Invalid size of matrix(NOT SQUARE)");
+    if (_rows == 1 || _cols == 1)
+      throw std::out_of_range("Invalid size of matrix(CANT FIND MINOR)");
+    for (int i = 0; i < COMP._rows; i++) {
+      int sign = i % 2 == 0 ? 1 : -1;
+      for (int j = 0; j < COMP._cols; j++) {
+        S21Matrix MINOR = Minor(i, j);
+        double res = 0;
+        res = MINOR.Determinant();
+        COMP._p[i][j] = sign * res;
+        sign = -sign;
+      }
+    }
+  }
+  catch (std::out_of_range &e) {
+    std::cout << e.what() << std::endl;
+  }
+  return COMP;
+}
+S21Matrix S21Matrix::Minor(int row_skip, int col_skip) {
+  S21Matrix minor = S21Matrix(_rows - 1, _cols - 1);
+  for (int i = 0, minor_row = 0; i < _rows; i++) {
+    if (i != row_skip) {
+      for (int j = 0, minor_col = 0; j < _cols; j++)
+        if (j != col_skip) minor._p[minor_row][minor_col++] = _p[i][j];
+      minor_row++;
+    }
+  }
+  return minor;
+}
+
+double S21Matrix::Determinant() {
+  double res = 0;
+  try {
+    if (_rows != _cols)
+      throw (std::out_of_range("NOT SQUARE"));
+    if (_rows == 1) res = _p[0][0];
+    if (_rows == 2)
+      res = _p[0][0] * _p[1][1] - _p[1][0] * _p[0][1];
+    if (_rows > 2) {
+      int sign = 1;
+      for (int i = 0; i < _cols; i++) {
+        S21Matrix minor = Minor(0, i);
+        double minor_res = 0;
+        minor_res = minor.Determinant();
+        res += sign * _p[0][i] * minor_res;
+        sign = -sign;
+      }
+    }
+  }
+  catch (std::out_of_range &e) {
+    std::cout << e.what() << std::endl;
+  }
+
+  return res;
+}
+S21Matrix S21Matrix::InverseMatrix() {
+  S21Matrix Inverse = S21Matrix(_rows, _cols);
+  try {
+    double det = this->Determinant();
+    if(det == 0)
+      throw (std::out_of_range("Determinant = 0"));
+    if(_rows != _cols)
+      throw (std::out_of_range("NOT SQUARE"));
+    if (_rows == 1) {
+      Inverse._p[0][0] = _p[0][0] * 1 / _p[0][0] / _p[0][0];
+    } else {
+      S21Matrix Tmp = this->CalcComplements();
+      S21Matrix Tmp_T = Tmp.Transpose();
+      Tmp_T.MulNumber(1 / det);
+      for (int i = 0; i < Tmp_T._rows; i++)
+        for (int j = 0; j < Tmp_T._cols; ++j) {
+          Inverse._p[i][j] = Tmp_T._p[i][j];
+        }
+    }
+  }
+  catch (std::out_of_range &e) {
+    std::cout << e.what() << std::endl;
+  }
+  return Inverse;
+}
 // число столбцов первой матрицы не равно числу строк второй матрицы
 /*
- * int s21_mult_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
+int s21_inverse_matrix(matrix_t* A, matrix_t* result) {
   int error = OK;
-  error = s21_matrix_valid_PRO(2, A, B);
-  if (!error && (A->columns != B->rows)) error = CALC_ERR;
-  if (!error) error = s21_create_matrix(A->rows, B->columns, result);
-  for (int i = 0; !error && i < result->rows; i++) {
-    for (int j = 0; !error && j < result->columns; ++j) {
-      result->matrix[i][j] = sum_mult(i, j, A, B);
-      if (result->matrix[i][j] != result->matrix[i][j]) error = CALC_ERR;
+  double res = 0;
+  error = s21_matrix_valid_PRO(1, A);
+  if (!error) {
+    error = s21_determinant(A, &res);
+    if (!error && res == 0) error = CALC_ERR;
+  }
+  if (!error) {
+    if (A->rows == 1) {
+      error = s21_mult_number(A, 1 / A->matrix[0][0] / A->matrix[0][0], result);
+    } else {
+      matrix_t Tmp = {0};
+      matrix_t Tmp_T = {0};
+      error = s21_calc_complements(A, &Tmp);
+      if (!error) error = s21_transpose(&Tmp, &Tmp_T);
+      if (!error) error = s21_mult_number(&Tmp_T, 1 / res, result);
+      s21_remove_matrix(&Tmp);
+      s21_remove_matrix(&Tmp_T);
     }
   }
   return error;
 }
 
-double sum_mult(int i, int j, matrix_t *A, matrix_t *B) {
-  double res = 0;
-  for (int r = 0; r < B->rows; r++) {
-    res += A->matrix[i][r] * B->matrix[r][j];
+
+int s21_determinant(matrix_t *A, double *result) {
+  int error = OK;
+  error = s21_matrix_valid_PRO(1, A);
+  if (!error && (A->columns != A->rows)) error = CALC_ERR;
+  if (!error && result == NULL) error = CALC_ERR;
+  if (!error) {
+    if (A->rows == 1) *result = A->matrix[0][0];
+    if (A->rows == 2)
+      *result =
+          A->matrix[0][0] * A->matrix[1][1] - A->matrix[1][0] * A->matrix[0][1];
+    if (A->rows > 2) {
+      *result = 0;
+      int sign = 1;
+      for (int i = 0; !error && i < A->columns; i++) {
+        matrix_t *minor = Minor(0, i, A);
+        if (minor == NULL)
+          error = INVALID;
+        else {
+          double minor_res = 0;
+          error = s21_determinant(minor, &minor_res);
+          if (!error) {
+            *result += sign * A->matrix[0][i] * minor_res;
+            sign = -sign;
+          }
+          s21_remove_matrix(minor);
+          free(minor);
+        }
+      }
+    }
   }
-  return res;
+  return error;
 }
+
 
  */

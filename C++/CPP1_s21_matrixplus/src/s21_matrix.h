@@ -23,6 +23,9 @@ class S21Matrix {
   S21Matrix(const S21Matrix& other);                            // copy cnstructor
   S21Matrix(S21Matrix&& other) noexcept;                       // move cnstructor
   ~S21Matrix();                                               // destructor
+  void set(int i, int j, int val) {
+    _p[i][j] = val;
+  }
 
   // some operators overloads
   S21Matrix& operator=(const S21Matrix& o);                   // assignment operator overload
@@ -39,6 +42,11 @@ class S21Matrix {
   void SubMatrix(const S21Matrix& other);
   void MulNumber(const double num);
   void MulMatrix(const S21Matrix& other);
+  S21Matrix CalcComplements();
+  S21Matrix Transpose();
+  double Determinant();
+  S21Matrix InverseMatrix();
+  S21Matrix Minor(int row_skip, int col_skip);
   void delete_matrix(S21Matrix* A);
   void create_matrix(S21Matrix* A, int rows, int cols);
   void S21_Print();
