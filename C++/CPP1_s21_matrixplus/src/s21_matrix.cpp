@@ -245,9 +245,9 @@ S21Matrix S21Matrix::InverseMatrix() {
   S21Matrix Inverse = S21Matrix(_rows, _cols);
   try {
     double det = this->Determinant();
-    if(det == 0)
+    if (det == 0)
       throw (std::out_of_range("Determinant = 0"));
-    if(_rows != _cols)
+    if (_rows != _cols)
       throw (std::out_of_range("NOT SQUARE"));
     if (_rows == 1) {
       Inverse._p[0][0] = _p[0][0] * 1 / _p[0][0] / _p[0][0];
@@ -266,65 +266,122 @@ S21Matrix S21Matrix::InverseMatrix() {
   }
   return Inverse;
 }
-// число столбцов первой матрицы не равно числу строк второй матрицы
-/*
-int s21_inverse_matrix(matrix_t* A, matrix_t* result) {
-  int error = OK;
-  double res = 0;
-  error = s21_matrix_valid_PRO(1, A);
-  if (!error) {
-    error = s21_determinant(A, &res);
-    if (!error && res == 0) error = CALC_ERR;
+S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
+  if (&other != this) {
+    if (_p) delete_matrix(this);
+    create_matrix(this, other._rows, other._cols);
+    copy_data(this, other);
   }
-  if (!error) {
-    if (A->rows == 1) {
-      error = s21_mult_number(A, 1 / A->matrix[0][0] / A->matrix[0][0], result);
+  return *this;
+}
+
+void S21Matrix::copy_data(S21Matrix *dest, const S21Matrix &src) {
+  for (int i = 0; i < src._rows; ++i)
+    for (int j = 0; j < src._cols; ++j)
+      dest->_p[i][j] = src._p[i][j];
+}
+
+S21Matrix S21Matrix::operator+(const S21Matrix &other) {
+  S21Matrix res(*this);
+  res.SumMatrix(other);
+  return res;
+}
+
+S21Matrix S21Matrix::operator-(const S21Matrix &other) {
+  S21Matrix res(*this);
+  res.SubMatrix(other);
+  return res;
+}
+S21Matrix S21Matrix::operator*(double num) {
+  S21Matrix res(*this);
+  res.MulNumber(num);
+  return res;
+}
+S21Matrix S21Matrix::operator*(const S21Matrix &other) {
+  S21Matrix res(*this);
+  res.MulMatrix(other);
+  return res;
+}
+bool S21Matrix::operator == (const S21Matrix &other) {
+  return this->EqMatrix(other);
+}
+
+S21Matrix& S21Matrix::operator += (const S21Matrix &other) {
+   this->SumMatrix(other);
+  return *this;
+}
+S21Matrix& S21Matrix::operator -= (const S21Matrix &other) {
+  this->SubMatrix(other);
+  return *this;
+}
+
+S21Matrix& S21Matrix::operator *= (const S21Matrix &other) {
+  this->MulMatrix(other);
+  return *this;
+}
+S21Matrix& S21Matrix::operator *= (double num) {
+  this->MulNumber(num);
+  return *this;
+}
+
+double S21Matrix::operator()(int row, int col) {
+  try {
+    if (row >= _rows || col >= _cols || !_p) {
+      throw std::out_of_range("Incorrect input, index is out of range");
+    }
+  }
+  catch (std::out_of_range & e) {
+    std::cout << e.what() << std::endl;
+    return 0.0;
+  }
+  return _p[row][col];
+}
+void S21Matrix::Set_row(int row) {
+  try {
+    if (row <= 0)
+      throw std::out_of_range("Rows must be > 0");
+    if (row >= _rows) {
+      S21Matrix tmp(row, _cols);
+      tmp.set_zero();
+      tmp.copy_data(&tmp, *this);
+      delete_matrix(this);
+      this->create_matrix(this, tmp._rows, tmp._cols);
+      copy_data(this, tmp);
     } else {
-      matrix_t Tmp = {0};
-      matrix_t Tmp_T = {0};
-      error = s21_calc_complements(A, &Tmp);
-      if (!error) error = s21_transpose(&Tmp, &Tmp_T);
-      if (!error) error = s21_mult_number(&Tmp_T, 1 / res, result);
-      s21_remove_matrix(&Tmp);
-      s21_remove_matrix(&Tmp_T);
+      for (int i = _rows - 1; i >= row; i--)
+        delete[] _p[i];
+      _rows = row;
     }
   }
-  return error;
+  catch  (std::out_of_range & e){
+    std::cout << e.what() << std::endl;
+  }
 }
-
-
-int s21_determinant(matrix_t *A, double *result) {
-  int error = OK;
-  error = s21_matrix_valid_PRO(1, A);
-  if (!error && (A->columns != A->rows)) error = CALC_ERR;
-  if (!error && result == NULL) error = CALC_ERR;
-  if (!error) {
-    if (A->rows == 1) *result = A->matrix[0][0];
-    if (A->rows == 2)
-      *result =
-          A->matrix[0][0] * A->matrix[1][1] - A->matrix[1][0] * A->matrix[0][1];
-    if (A->rows > 2) {
-      *result = 0;
-      int sign = 1;
-      for (int i = 0; !error && i < A->columns; i++) {
-        matrix_t *minor = Minor(0, i, A);
-        if (minor == NULL)
-          error = INVALID;
-        else {
-          double minor_res = 0;
-          error = s21_determinant(minor, &minor_res);
-          if (!error) {
-            *result += sign * A->matrix[0][i] * minor_res;
-            sign = -sign;
-          }
-          s21_remove_matrix(minor);
-          free(minor);
-        }
-      }
+void S21Matrix::set_zero() {
+  for (int i = 0; i < _rows; ++i)
+    for (int j = 0; j < _cols; ++j)
+      _p[i][j] = 0;
+}
+void S21Matrix::Set_col(int col) {
+  try {
+    if (col <= 0)
+      throw std::out_of_range("Rows must be > 0");
+    if (col >= _cols) {
+      S21Matrix tmp(_rows, col);
+      tmp.set_zero();
+      tmp.copy_data(&tmp, *this);
+      delete_matrix(this);
+      this->create_matrix(this, tmp._rows, tmp._cols);
+      copy_data(this, tmp);
+    } else {
+//      for (int i = 0; i < _rows; i++) {
+//        printf("%f\n", (_p[i][col - 1]));
+////        delete[] &(_p[i][col - 1]);
+//      }
+      _cols = col;
     }
   }
-  return error;
+  catch  (std::out_of_range & e){
+    std::cout << e.what() << std::endl;
+  }
 }
-
-
- */

@@ -26,15 +26,24 @@ class S21Matrix {
   void set(int i, int j, int val) {
     _p[i][j] = val;
   }
+  int Get_row() const {return _rows;}
+  int Get_col() const {return _cols;}
+  void Set_row(int row);
+  void Set_col(int col);
 
   // some operators overloads
-  S21Matrix& operator=(const S21Matrix& o);                   // assignment operator overload
-  int& operator()(int row, int col);                          // index operator overload
-  int& operator()(int row, int col) const;
-  S21Matrix& operator+=(const S21Matrix& o);
-  S21Matrix operator+(const S21Matrix& o);
-  S21Matrix& operator-=(const S21Matrix& o);
-  S21Matrix operator-(const S21Matrix& o);
+  S21Matrix& operator = (const S21Matrix& other);              // assignment operator overload
+  S21Matrix operator + (const S21Matrix& other);
+  S21Matrix operator - (const S21Matrix& other);
+  S21Matrix operator*(double num);
+  S21Matrix operator*(const S21Matrix& other);
+  bool operator == (const S21Matrix& other);
+  double operator()(int row, int col);                          // index operator overload
+//  int& operator()(int row, int col) const;
+  S21Matrix& operator += (const S21Matrix &other);
+  S21Matrix& operator -= (const S21Matrix &other);
+  S21Matrix& operator *= (const S21Matrix &other);
+  S21Matrix& operator *= (double num);
 
   // some public methods
   bool EqMatrix(const S21Matrix& other);
@@ -51,5 +60,7 @@ class S21Matrix {
   void create_matrix(S21Matrix* A, int rows, int cols);
   void S21_Print();
   void S21_Fill();
+  void copy_data(S21Matrix *dest, const S21Matrix& src);
+  void set_zero();
 };
 #endif //CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_H_
