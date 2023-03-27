@@ -1,0 +1,23 @@
+# Candidate info
+Petrov Petr Petrovich
+QA
+Male
+...
+
+# Education
+higher
+2008-2012
+...
+
+# Job experience
+##
+2012-2013
+OOO "Good Company"
+Worked as QA
+##
+2013-2020
+...
+
+# Free block
+I'm a QA specialist from head to heels. ...
+...

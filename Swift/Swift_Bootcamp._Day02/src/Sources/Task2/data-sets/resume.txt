@@ -1,0 +1,30 @@
+# Candidate info
+Petrov Petr Petrovich
+QA
+Male
+01.02.1998
++79007652436
+amogus@gmail.com
+Yes
+
+# Education
+higher
+2008-2012
+It was Hogwarts
+
+# Job experience
+##
+2012-2013
+OOO "Good Company"
+Worked as QA
+##
+2013-2020
+OOO "Bad Company"
+Worked as Assistant
+##
+1900-2999
+OOO "God Company"
+Worked as SQL worker
+
+# Free block
+I'm a QA specialist from head to heels. I also know SQL and Frontend

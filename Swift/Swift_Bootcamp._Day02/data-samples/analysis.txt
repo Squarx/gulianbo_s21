@@ -1,0 +1,30 @@
+# Words
+QA - 2
+Worked - 1
+as - 1
+I'm - 1
+a - 1
+specialist - 1
+from - 1
+head - 1
+to - 1
+heels - 1
+
+# Matched tags
+QA
+...
+
+# List of vacancies for (n) years experience
+Senior QA     ---      from 200000
+  OOO "SuperPay"
+  Banking
+---------------------------------------
+Senior QA     ---      from 200000
+  MMM
+  Banking
+---------------------------------------
+...
+
+# Possible tags
+specialist
+...

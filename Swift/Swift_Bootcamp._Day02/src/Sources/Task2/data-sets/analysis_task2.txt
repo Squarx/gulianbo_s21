@@ -1,0 +1,57 @@
+#Words
+QA - 3
+OOO - 3
+as - 3
+Worked - 3
+Company - 3
+SQL - 2
+2012 - 2
+2013 - 2
+I - 2
+info - 1
+specialist - 1
+Candidate - 1
+1998 - 1
++79007652436 - 1
+higher - 1
+Frontend - 1
+2020 - 1
+block - 1
+gmail - 1
+02 - 1
+com - 1
+was - 1
+to - 1
+Petrovich - 1
+amogus - 1
+Yes - 1
+Petr - 1
+a - 1
+1900 - 1
+head - 1
+heels - 1
+Education - 1
+2008 - 1
+worker - 1
+from - 1
+also - 1
+01 - 1
+God - 1
+Bad - 1
+and - 1
+It - 1
+Job - 1
+m - 1
+Good - 1
+Hogwarts - 1
+Free - 1
+experience - 1
+know - 1
+Male - 1
+2999 - 1
+Assistant - 1
+Petrov - 1
+
+#Matched tags
+QA
+Frontend
