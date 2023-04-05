@@ -15,21 +15,21 @@ class S21Matrix {
  private:
   // attributes
   int _rows, _cols;                                           // rows and columns attributes
-  double **_p = nullptr;                                                // pointer to the memory where the matrix will be allocated
+  double **_matrix;                                                // pointer to the memory where the matrix will be allocated
 
  public:
   S21Matrix();                                                // default constructor
   S21Matrix(int rows, int cols);                              // parameterized constructor
-  S21Matrix(const S21Matrix& other);                            // copy cnstructor
-  S21Matrix(S21Matrix&& other) noexcept;                       // move cnstructor
+  S21Matrix(const S21Matrix& other);                            // copy costructor
+  S21Matrix(S21Matrix&& other) noexcept;                       // move costructor
   ~S21Matrix();                                               // destructor
   void set(int i, int j, int val) {
-    _p[i][j] = val;
+    _matrix[i][j] = val;
   }
-  int Get_row() const {return _rows;}
-  int Get_col() const {return _cols;}
-  void Set_row(int row);
-  void Set_col(int col);
+  int GetRows() const {return _rows;}
+  int GetCols() const {return _cols;}
+  void SetRows(int row);
+  void SetCols(int col);
 
   // some operators overloads
   S21Matrix& operator = (const S21Matrix& other);              // assignment operator overload
@@ -58,9 +58,11 @@ class S21Matrix {
   S21Matrix Minor(int row_skip, int col_skip);
   void delete_matrix(S21Matrix* A);
   void create_matrix(S21Matrix* A, int rows, int cols);
-  void S21_Print();
-  void S21_Fill();
+  void print();
+  void fill_int();
   void copy_data(S21Matrix *dest, const S21Matrix& src);
   void set_zero();
+  void FillRandMatrix();
+  void CopyData(const S21Matrix &other);
 };
 #endif //CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_H_
