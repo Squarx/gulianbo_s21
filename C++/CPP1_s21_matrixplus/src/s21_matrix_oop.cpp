@@ -38,7 +38,7 @@ S21Matrix::S21Matrix(
     for (auto j = 0; j < _cols; j++)
       _matrix[i][j] = other._matrix[i][j];
 }
-S21Matrix::S21Matrix(S21Matrix &&other) noexcept : S21Matrix(other._rows, other._cols){
+S21Matrix::S21Matrix(S21Matrix &&other) noexcept {
   if (this->_matrix != nullptr) delete_matrix(this);
   create_matrix(this, other._rows, other._cols);
   for (auto i = 0; i < other._rows; i++) {
