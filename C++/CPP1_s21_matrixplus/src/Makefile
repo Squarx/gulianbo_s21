@@ -70,4 +70,5 @@ check:
 	rm -f .clang-format
 
 
-
+testVG: clean $(TESTEXEC)
+	$(Vgrind) ./$(TESTEXEC)
