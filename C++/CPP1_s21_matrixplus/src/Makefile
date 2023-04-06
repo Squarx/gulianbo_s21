@@ -26,8 +26,19 @@ VG:
 
 clean:
 	rm -rf $(EXECUTABLE) $(TESTEXEC)
+		rm -rf *.gcda *.gcno report test.info
+
 
 test: clean $(TESTEXEC)
 	./$(TESTEXEC)
 $(TESTEXEC): clean
 	$(CXX)  $(SRC) $(TESTSRC) -o $(TESTEXEC) $(CXXFLAGS)  $(GTESTFLAGS)
+
+testLeaks: clean $(TESTEXEC)
+	leaks -atExit -- ./$(TESTEXEC)
+gcov_report: clean
+	$(CXX) --coverage $(SRC) $(TESTSRC) -o $(TESTEXEC) $(CXXFLAGS)  $(GTESTFLAGS)
+	./$(TESTEXEC)
+	lcov -t "test" -o test.info -c -d . --no-external
+	genhtml -o report test.info
+	open ./report/index.html

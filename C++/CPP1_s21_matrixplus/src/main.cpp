@@ -6,12 +6,10 @@
 
 int main() {
 //  std::unique_ptr<S21Matrix>  p2(new S21Matrix(4,4));
-  S21Matrix A(3,3);
-  A.FillRandMatrix();
-  A.print();
-  A.SetRows(2);
-  std::cout << "" << std::endl;
-  A.print();
+    double data[1] = {2};
+    S21Matrix matrix1(data, 1, 1);
+    S21Matrix tt = matrix1.InverseMatrix();
+    tt.print();
   return 0;
 }
 
