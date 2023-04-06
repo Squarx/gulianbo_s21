@@ -49,17 +49,17 @@ S21Matrix::S21Matrix(const S21Matrix &other) {
   for (int i = 0; i < _rows; ++i) {
     _matrix[i] = new double[_cols];
   }
-  copy_data(this, other);
+  CopyData(this, other);
 }
 
 S21Matrix::S21Matrix(S21Matrix &&other) noexcept {
-  if (this->_matrix != nullptr) delete_matrix(this);
-  create_matrix(this, other._rows, other._cols);
+  if (this->_matrix != nullptr) DeleteMatrix(this);
+  CreateMatrix(this, other._rows, other._cols);
   for (auto i = 0; i < other._rows; i++) {
     std::memmove(this->_matrix[i], other._matrix[i],
                  other._cols * sizeof(double));
   }
-  delete_matrix(&other);
+  DeleteMatrix(&other);
 }
 
 bool S21Matrix::EqMatrix(const S21Matrix &other) {
@@ -109,9 +109,9 @@ void S21Matrix::MulMatrix(const S21Matrix &other) {
       Result._matrix[i][j] = res;
     }
   }
-  this->delete_matrix(this);
-  this->create_matrix(this, Result._rows, Result._cols);
-  copy_data(this, Result);
+  this->DeleteMatrix(this);
+  this->CreateMatrix(this, Result._rows, Result._cols);
+  CopyData(this, Result);
 }
 
 S21Matrix S21Matrix::Transpose() {
@@ -123,7 +123,7 @@ S21Matrix S21Matrix::Transpose() {
   return Transposed;
 }
 
-void S21Matrix::delete_matrix(S21Matrix *A) {
+void S21Matrix::DeleteMatrix(S21Matrix *A) {
   for (int i = 0; i < A->_rows; i++) delete[] A->_matrix[i];
   delete[] A->_matrix;
   A->_matrix = nullptr;
@@ -131,7 +131,7 @@ void S21Matrix::delete_matrix(S21Matrix *A) {
   A->_cols = 0;
 }
 
-void S21Matrix::create_matrix(S21Matrix *A, int rows, int cols) {
+void S21Matrix::CreateMatrix(S21Matrix *A, int rows, int cols) {
   A->_matrix = new double *[rows];
   for (int i = 0; i < rows; ++i) {
     A->_matrix[i] = new double[cols];
@@ -218,14 +218,14 @@ S21Matrix S21Matrix::InverseMatrix() {
 
 S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
   if (&other != this) {
-    if (_matrix) delete_matrix(this);
-    create_matrix(this, other._rows, other._cols);
-    copy_data(this, other);
+    if (_matrix) DeleteMatrix(this);
+    CreateMatrix(this, other._rows, other._cols);
+    CopyData(this, other);
   }
   return *this;
 }
 
-void S21Matrix::copy_data(S21Matrix *dest, const S21Matrix &src) {
+void S21Matrix::CopyData(S21Matrix *dest, const S21Matrix &src) {
   for (int i = 0; i < src._rows; ++i)
     for (int j = 0; j < src._cols; ++j) dest->_matrix[i][j] = src._matrix[i][j];
 }
@@ -278,7 +278,7 @@ S21Matrix &S21Matrix::operator*=(double num) {
   return *this;
 }
 
-double S21Matrix::operator()(int row, int col) {
+double& S21Matrix::operator()(int row, int col) {
   if (row >= _rows || col >= _cols || !_matrix || row < 0 || col < 0) {
     throw std::out_of_range("Incorrect input, index is out of range");
   }
@@ -288,8 +288,8 @@ double S21Matrix::operator()(int row, int col) {
 void S21Matrix::SetRows(int row) {
   if (row <= 0) throw std::out_of_range("Rows must be > 0");
   S21Matrix temp = std::move(*this);
-  create_matrix(this, row, temp._cols);
-  this->set_zero();
+  CreateMatrix(this, row, temp._cols);
+  this->SetZero();
   for (auto i = 0; i < this->_rows && i < temp._rows; ++i) {
     for (auto j = 0; j < this->_cols; ++j) {
       this->_matrix[i][j] = temp._matrix[i][j];
@@ -297,7 +297,7 @@ void S21Matrix::SetRows(int row) {
   }
 }
 
-void S21Matrix::set_zero() {
+void S21Matrix::SetZero() {
   for (int i = 0; i < _rows; ++i)
     for (int j = 0; j < _cols; ++j) _matrix[i][j] = 0;
 }
@@ -305,8 +305,8 @@ void S21Matrix::set_zero() {
 void S21Matrix::SetCols(int col) {
   if (col <= 0) throw std::out_of_range("Rows must be > 0");
   S21Matrix temp = std::move(*this);
-  create_matrix(this, temp._rows, col);
-  this->set_zero();
+  CreateMatrix(this, temp._rows, col);
+  this->SetZero();
   for (auto i = 0; i < this->_rows; ++i) {
     for (auto j = 0; j < this->_cols && j < temp._cols; ++j) {
       this->_matrix[i][j] = temp._matrix[i][j];
@@ -324,7 +324,7 @@ void S21Matrix::FillRandMatrix() {
   }
 }
 
-void S21Matrix::print() {
+void S21Matrix::Print() {
   if (_rows == 0 || _cols == 0) {
     throw std::range_error("It seems to be a NULL matrix");
   }
@@ -336,7 +336,7 @@ void S21Matrix::print() {
   }
 }
 
-void S21Matrix::fill_int() {
+void S21Matrix::FillInt() {
   for (int i = 0, x = 0; i < _rows; i++)
     for (int j = 0; j < _cols; ++j, ++x) _matrix[i][j] = x;
 }

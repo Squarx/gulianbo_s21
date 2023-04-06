@@ -266,27 +266,20 @@ TEST(MatrtixTestOperator, OpertorGetElement) {
   EXPECT_THROW(matrix1(3, 2), std::exception);
 }
 
-TEST(MatrtixTestOperator, FunctionCopydata) {
-  double data[4] = {2, 1, 2, 4};
-  S21Matrix matrix1 = S21Matrix(data, 2, 2);
-  S21Matrix matrix2(2, 2);
-  matrix2.copy_data(&matrix2, matrix1);
-  EXPECT_EQ(matrix1 == matrix2, true);
-}
 TEST(MatrtixTestOperator, FunctionFillint) {
   double data[4] = {0, 1, 2, 3};
   S21Matrix matrix1 = S21Matrix(data, 2, 2);
   S21Matrix matrix2(2, 2);
-  matrix2.fill_int();
+  matrix2.FillInt();
   EXPECT_EQ(matrix1 == matrix2, true);
 }
 
-TEST(MatrtixTestOperator, Functionprint) {
+TEST(MatrtixTestOperator, FunctionPrint) {
   double data[4] = {0, 1, 2, 3};
   S21Matrix matrix1 = S21Matrix(data, 2, 2);
-  matrix1.print();
+  matrix1.Print();
   S21Matrix deleter = std::move(matrix1);
-  EXPECT_THROW(matrix1.print(), std::exception);
+  EXPECT_THROW(matrix1.Print(), std::exception);
 }
 
 int main(int argc, char** argv) {
