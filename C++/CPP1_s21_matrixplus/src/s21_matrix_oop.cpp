@@ -278,7 +278,7 @@ S21Matrix &S21Matrix::operator*=(double num) {
   return *this;
 }
 
-double& S21Matrix::operator()(int row, int col) {
+double &S21Matrix::operator()(int row, int col) {
   if (row >= _rows || col >= _cols || !_matrix || row < 0 || col < 0) {
     throw std::out_of_range("Incorrect input, index is out of range");
   }
