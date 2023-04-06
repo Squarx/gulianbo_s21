@@ -3,7 +3,7 @@
 //
 #include <memory>
 
-#include "s21_matrix_oop.h"
+#include "s21matrix__oop.h"
 
 int main() {
   S21Matrix matrix1(2, 2);

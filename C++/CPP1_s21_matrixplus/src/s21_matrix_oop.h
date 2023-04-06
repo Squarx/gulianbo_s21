@@ -5,8 +5,8 @@
 #include <cstring>
 #include <iostream>
 
-#ifndef CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_H_
-#define CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_H_
+#ifndef CPP1_S21matrix_PLUS_SRC_S21matrix__H_
+#define CPP1_S21matrix_PLUS_SRC_S21matrix__H_
 
 class S21Matrix {
  public:
@@ -50,8 +50,8 @@ class S21Matrix {
   void FillRandMatrix();
 
  private:
-  int _rows, _cols;
-  double **_matrix = nullptr;
+  int rows_, cols_;
+  double **matrix_ = nullptr;
   void DeleteMatrix(S21Matrix *A);
   void CreateMatrix(S21Matrix *A, int rows, int cols);
   void CopyData(S21Matrix *dest, const S21Matrix &src);
@@ -59,4 +59,4 @@ class S21Matrix {
   S21Matrix Minor(int row_skip, int col_skip);
 };
 
-#endif  // CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_H_
+#endif  // CPP1_S21matrix_PLUS_SRC_S21matrix__H_

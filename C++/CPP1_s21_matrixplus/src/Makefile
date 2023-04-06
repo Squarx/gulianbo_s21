@@ -9,7 +9,7 @@ SRC= $(wildcard s21_matrix_oop.cpp)
 TESTSRC = $(wildcard test/*.cpp)
 ALLFILES= $(wildcard *.cpp test/*.cpp *.h test/*.h)
 EXECUTABLE= matrix
-TESTEXEC = test_matrix
+TESTEXEC = testmatrix_
 
 OBJECTS= $(patsubst %.cpp, %.o, $(SRC))
 
