@@ -213,10 +213,6 @@ S21Matrix S21Matrix::InverseMatrix() {
         Inverse._matrix[i][j] = Tmp_T._matrix[i][j];
       }
   }
-
-  //  catch (std::out_of_range &e) {
-  //    std::cout << e.what() << std::endl;
-  //  }
   return Inverse;
 }
 
@@ -229,11 +225,6 @@ S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
   return *this;
 }
 
-/**
- *
- * @param dest
- * @param src
- */
 void S21Matrix::copy_data(S21Matrix *dest, const S21Matrix &src) {
   for (int i = 0; i < src._rows; ++i)
     for (int j = 0; j < src._cols; ++j) dest->_matrix[i][j] = src._matrix[i][j];
@@ -356,5 +347,7 @@ void S21Matrix::setValue(int row, int col, double val) {
   }
   _matrix[row][col] = val;
 }
+
 int S21Matrix::GetRows() const { return _rows; }
+
 int S21Matrix::GetCols() const { return _cols; }
