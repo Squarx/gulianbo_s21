@@ -34,9 +34,7 @@ S21Matrix::S21Matrix(
   for (int i = 0; i < _rows; ++i) {
     _matrix[i] = new double[_cols];
   }
-  for (auto i = 0; i < _rows; i++)
-    for (auto j = 0; j < _cols; j++)
-      _matrix[i][j] = other._matrix[i][j];
+    copy_data(this, other);
 }
 S21Matrix::S21Matrix(S21Matrix &&other) noexcept {
   if (this->_matrix != nullptr) delete_matrix(this);
