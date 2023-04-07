@@ -8,6 +8,7 @@
 #include <cstring>
 #include <iostream>
 
+namespace S21_Project {
 class S21Matrix {
  public:
   S21Matrix();  // Конструктор по умолчанию
@@ -60,5 +61,5 @@ class S21Matrix {
   static void CopyData(S21Matrix *dest, const S21Matrix &src);
   S21Matrix Minor(int row_skip, int col_skip);
 };
-
+}  // namespace S21_Project
 #endif  // CPP1_S21MATRIX_PLUS_SRC_S21MATRIX_H_
