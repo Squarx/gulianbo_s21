@@ -3,9 +3,9 @@ select p.name                         as name,
        price                          as price,
        price * (1 - (discount / 100)) as discount_price,
        pz.name                        as pizzeria_name
-from person_order
-         join person_discounts pd on person_order.person_id = pd.person_id
-         join person p on p.id = pd.person_id
-         join menu m on m.id = person_order.menu_id
-         join pizzeria pz on m.pizzeria_id = pz.id
+from person p
+         join person_discounts pd on p.id = pd.person_id
+         join pizzeria pz on pd.pizzeria_id = pz.id
+         join menu m on pz.id = m.pizzeria_id
+         join person_order po on m.id = po.menu_id and p.id = po.person_id
 order by name, pizza_name;

@@ -7,4 +7,3 @@ CREATE TABLE person_discounts
     CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id),
     discount    numeric NOT NULL
 );
-
