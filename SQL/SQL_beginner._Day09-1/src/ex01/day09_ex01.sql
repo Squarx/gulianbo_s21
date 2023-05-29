@@ -7,11 +7,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE TRIGGER trg_person_update_audit
+CREATE TRIGGER trg_person_update_audit
 AFTER UPDATE ON person
 FOR EACH ROW
 EXECUTE FUNCTION fnc_trg_person_update_audit();
 
 UPDATE person SET name = 'Bulat' WHERE id = 10;
--- select * from person_audit;
--- DELETE FROM person_audit WHERE name = 'Bulat'
+select * from person_audit;
