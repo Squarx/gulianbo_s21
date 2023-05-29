@@ -20,3 +20,4 @@ SELECT ROW_NUMBER() OVER () AS id, person_id, pizzeria_id, discount
 FROM person_pizzeria_discout;
 
 select * from person_discounts;
+
