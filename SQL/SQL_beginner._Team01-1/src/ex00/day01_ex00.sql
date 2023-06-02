@@ -18,7 +18,6 @@ from "user" u
 group by u.id, b.type, currency_id
 order by name desc, lastname, type;
 
-
 select ud.name as name,
        lastname,
        type,
@@ -29,4 +28,3 @@ select ud.name as name,
 from user_data ud
          full join currency_attributes ca on ud.currency_id = ca.currency_id
 order by name desc, lastname, type;
-
