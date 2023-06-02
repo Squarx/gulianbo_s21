@@ -23,8 +23,6 @@ FOR EACH ROW
 EXECUTE FUNCTION fnc_trg_person_insert_audit();
 
 
-
-
 INSERT INTO person(id, name, age, gender, address)
 VALUES (10, 'Damir', 22, 'male', 'Irkutsk');
-select * from person_audit;
+

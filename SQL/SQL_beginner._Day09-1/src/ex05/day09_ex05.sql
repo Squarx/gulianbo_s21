@@ -20,6 +20,13 @@ $$ LANGUAGE SQL;
 
 
 
+
+
+
+
+
+
+
 --pgsql version
 
 -- CREATE FUNCTION fnc_persons(pgender varchar DEFAULT 'female')

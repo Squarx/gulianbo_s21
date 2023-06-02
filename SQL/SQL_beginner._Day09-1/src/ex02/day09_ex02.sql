@@ -12,6 +12,5 @@ AFTER DELETE ON person
 FOR EACH ROW
 EXECUTE FUNCTION fnc_trg_person_delete_audit();
 
-select * from person_audit;
 
 DELETE FROM person WHERE id = 10;

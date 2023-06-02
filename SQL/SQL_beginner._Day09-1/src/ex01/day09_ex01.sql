@@ -13,4 +13,5 @@ FOR EACH ROW
 EXECUTE FUNCTION fnc_trg_person_update_audit();
 
 UPDATE person SET name = 'Bulat' WHERE id = 10;
-select * from person_audit;
+
+UPDATE person SET name = 'Damir' WHERE id = 10;
