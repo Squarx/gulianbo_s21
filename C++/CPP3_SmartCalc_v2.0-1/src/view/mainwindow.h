@@ -15,8 +15,9 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 
  public:
-  //  MainWindow(QWidget *parent = nullptr);
   MainWindow(QWidget* parent = nullptr, s21::Controller* controller = nullptr);
+  MainWindow(const MainWindow&) = delete;
+  MainWindow& operator=(const MainWindow&) = delete;
   ~MainWindow();
 
  private slots:
@@ -25,6 +26,6 @@ class MainWindow : public QMainWindow {
  private:
   Ui::MainWindow* ui;
   s21::Controller* controller_;
-  SmartCalcView* calc_view;
+  std::unique_ptr<SmartCalcView> calc_view;
 };
 #endif  // MAINWINDOW_H

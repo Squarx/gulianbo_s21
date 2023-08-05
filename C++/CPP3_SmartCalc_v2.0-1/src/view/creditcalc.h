@@ -1,8 +1,8 @@
 #ifndef CREDITCALC_H
 #define CREDITCALC_H
 
+#include "../common/MyQDoubleValidator.h"
 #include "../controller/Controller.h"
-
 namespace Ui {
 class CreditCalc;
 }
@@ -12,6 +12,8 @@ class CreditCalc : public QWidget {
 
  public:
   explicit CreditCalc(QWidget* parent = nullptr, s21::Controller* c = nullptr);
+  CreditCalc(const CreditCalc&) = delete;
+  CreditCalc& operator=(const CreditCalc&) = delete;
   ~CreditCalc();
  signals:
   void CalcWindow();
@@ -21,15 +23,17 @@ class CreditCalc : public QWidget {
 
   void on_pushButton_clicked();
 
- private:
-  void FillTable();
+  void RenderError();
 
+ private:
+  using TableColums = s21::CreditModel::TableColums;
+  void FillTable();
   Ui::CreditCalc* ui;
   s21::Controller* controller_;
-  QIntValidator* month_val;
-  QIntValidator* mortgage_val;
-  QDoubleValidator* percent_val;
-  std::array<std::vector<double>*, 5> table{};
+  std::unique_ptr<QIntValidator> month_val;
+  std::unique_ptr<QIntValidator> mortgage_val;
+  std::unique_ptr<MyQDoubleValidator> percent_val;
+  std::map<TableColums, std::vector<long double>*> table{};
 };
 
 #endif  // CREDITCALC_H

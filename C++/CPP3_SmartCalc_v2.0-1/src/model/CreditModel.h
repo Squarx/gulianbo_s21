@@ -5,30 +5,41 @@
 #ifndef CPP3_SMARTCALC_V2_0_1_SRC_MODEL_CREDITMODEL_H_
 #define CPP3_SMARTCALC_V2_0_1_SRC_MODEL_CREDITMODEL_H_
 
-#include <array>
 #include <cmath>
+#include <map>
 #include <vector>
 
 namespace s21 {
 class CreditModel {
  public:
+  enum TableColums {
+    kMonthlyPayment,
+    kDebtBefore,
+    kPartPercents,
+    kPartDebt,
+    kDebtAfter,
+    kResPayments,
+    kResPercents,
+    kResOverPayment,
+    kResOverPaymentPercentage
+  };
   CreditModel() {}
   void Cleaner();
   void EvaluateAnnu();
   void EvaluateDiff();
-  std::array<std::vector<double> *, 5> GetVectors();
-  void SetVars(double mortgage, double percent, int month);
-  std::array<double, 4> CalculateResults();
+  std::map<TableColums, std::vector<long double> *> GetVectors();
+  void SetVars(long double mortgage, long double percent, int month);
+  std::map<TableColums, long double> CalculateResults();
 
  private:
-  double mortgage_, percent_;
-  std::vector<double> monthly_payment_{};
-  std::vector<double> debt_before_{};
-  std::vector<double> part_percent_{};
-  std::vector<double> part_debt_{};
-  std::vector<double> debt_after_{};
+  long double mortgage_, percent_;
+  std::vector<long double> monthly_payment_{};
+  std::vector<long double> debt_before_{};
+  std::vector<long double> part_percent_{};
+  std::vector<long double> part_debt_{};
+  std::vector<long double> debt_after_{};
   int month_;
-  double all_payments_{}, all_percents_{}, start_mortgage_;
+  long double all_payments_{}, all_percents_{}, start_mortgage_;
 };
 };  // namespace s21
 

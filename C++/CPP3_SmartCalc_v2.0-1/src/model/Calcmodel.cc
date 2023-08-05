@@ -1,26 +1,40 @@
 #include "Calcmodel.h"
 
 namespace s21 {
-std::pair<bool, long double> CalcModel::GetResult(std::string &input,
-                                                  long double var_x) noexcept {
-  ClearData();
-  input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
-  str_start_ = input.cbegin();
-  auto start = str_start_;
-  auto end = input.cend();
-  while (start != end && !error_) {
-    if (!ProcessNumericToken(start, end) && !ProcessOperation(start, end) &&
-        !ProcessX(start, end, var_x))
-      error_ = true;
+long double CalcModel::GetResult(std::string &input, long double var_x) {
+  try {
+    ClearData();
+    input.erase(remove_if(input.begin(), input.end(), isspace), input.end());
+    str_start_ = input.cbegin();
+    auto start = str_start_;
+    auto end = input.cend();
+
+    while (start != end) {
+      if (!ProcessNumericToken(start, end) && !ProcessOperation(start, end) &&
+          !ProcessX(start, end, var_x)) {
+        throw std::runtime_error("Invalid function");
+      }
+    }
+
+    while (!operation_stack_.empty()) {
+      Calculate();
+    }
+
+    if (!operation_stack_.empty() || numeric_stack_.size() != 1) {
+      throw std::runtime_error("Invalid count of functions");
+    }
+
+  } catch (const std::exception &e) {
+    ClearData();
+    throw;
   }
-  while (!error_ && !operation_stack_.empty()) Calculate();
-  if (!operation_stack_.empty() || numeric_stack_.size() != 1) error_ = true;
-  return std::make_pair(error_, error_ ? 0 : numeric_stack_.back());
+
+  return numeric_stack_.back();
 }
 
 bool CalcModel::ProcessX(std::string::const_iterator &start,
                          const std::string::const_iterator &end,
-                         long double var_x) noexcept {
+                         long double var_x) {
   bool result = false;
   if (std::regex_search(start, end, match_, var_x_pattern_)) {
     SmartMult(start);
@@ -32,9 +46,8 @@ bool CalcModel::ProcessX(std::string::const_iterator &start,
   return result;
 }
 
-bool CalcModel::ProcessNumericToken(
-    std::string::const_iterator &start,
-    const std::string::const_iterator &end) noexcept {
+bool CalcModel::ProcessNumericToken(std::string::const_iterator &start,
+                                    const std::string::const_iterator &end) {
   bool result = false;
   if (std::regex_search(start, end, match_, numeric_pattern_)) {
     std::string token = match_[0];
@@ -46,16 +59,15 @@ bool CalcModel::ProcessNumericToken(
   return result;
 }
 
-bool CalcModel::ProcessOperation(
-    std::string::const_iterator &start,
-    const std::string::const_iterator &end) noexcept {
+bool CalcModel::ProcessOperation(std::string::const_iterator &start,
+                                 const std::string::const_iterator &end) {
   bool result = false;
   if (std::regex_search(start, end, match_, operator_pattern_)) {
     std::string token = match_[0];
     if (IsUnOp(start)) {
       if (token == "-") {
         numeric_stack_.push_back(-1);
-        operation_stack_.emplace_back(3, kH);
+        operation_stack_.emplace_back(kMul, kUn);
       }
     } else {
       NonUnProcess(token, start);
@@ -66,13 +78,12 @@ bool CalcModel::ProcessOperation(
   return result;
 }
 void CalcModel::NonUnProcess(const std::string &token,
-                             std::string::const_iterator &start) noexcept {
-  int name = operation_dict.find(token)->second;
-  int priority = GetPriority(name);
-  OP current_operation(name, priority);
+                             std::string::const_iterator &start) {
+  int name = operation_dict_.find(token)->second;
+  OP current_operation(name);
   if (IsFuncTwoArg(name) || IsBranch(name)) {
     if (name == kLBranch && !numeric_stack_.empty() &&
-        operation_stack_.back().name_ < kCos) {
+        operation_stack_.back().Name() < kCos) {
       SmartMult(start);
     }
     CompressFunc(current_operation);
@@ -82,42 +93,43 @@ void CalcModel::NonUnProcess(const std::string &token,
   }
 }
 
-void CalcModel::CompressFunc(OP current_operation) noexcept {
-  if ((current_operation.priority_ <= operation_stack_.back().priority_ &&
-       !(operation_stack_.back().name_ == kPow &&
-         current_operation.name_ == kPow)) ||
-      current_operation.name_ == kRBranch) {
-    while (!error_ &&
-           (!operation_stack_.empty() &&
-            current_operation.priority_ <= operation_stack_.back().priority_) &&
-           operation_stack_.back().name_ != kLBranch)
+void CalcModel::CompressFunc(OP current_operation) {
+  if ((current_operation.Priority() <= operation_stack_.back().Priority() &&
+       !(operation_stack_.back().Name() == kPow &&
+         current_operation.Name() == kPow)) ||
+      current_operation.Name() == kRBranch) {
+    while (
+        (!operation_stack_.empty() &&
+         current_operation.Priority() <= operation_stack_.back().Priority()) &&
+        operation_stack_.back().Name() != kLBranch) {
       Calculate();
+    }
   }
-  if (!error_) {
-    if (current_operation.name_ != kRBranch) {
-      operation_stack_.push_back(current_operation);
+
+  if (current_operation.Name() != kRBranch) {
+    operation_stack_.push_back(current_operation);
+  } else {
+    if (!operation_stack_.empty()) {
+      operation_stack_.pop_back();
     } else {
-      if (!operation_stack_.empty()) {
-        operation_stack_.pop_back();
-      } else {
-        error_ = true;
-      }
-      if (!operation_stack_.empty() && operation_stack_.back().name_ >= kCos)
-        Calculate();
+      throw std::runtime_error("Invalid token with brackets (...)");
+    }
+    if (!operation_stack_.empty() && operation_stack_.back().Name() >= kCos) {
+      Calculate();
     }
   }
 }
 
-void CalcModel::CalculateTwoArgs() noexcept {
+void CalcModel::CalculateTwoArgs() {
   long double res = 0;
   if (numeric_stack_.size() < 2) {
-    error_ = true;
+    throw std::runtime_error("Invalid count functions with two args or )");
   } else {
     long double b = numeric_stack_.back();
     numeric_stack_.pop_back();
     long double a = numeric_stack_.back();
     numeric_stack_.pop_back();
-    int func = operation_stack_.back().name_;
+    int func = operation_stack_.back().Name();
     operation_stack_.pop_back();
     switch (func) {
       case kPlus:
@@ -145,14 +157,14 @@ void CalcModel::CalculateTwoArgs() noexcept {
   }
 }
 
-void CalcModel::CalculateOneArgs() noexcept {
+void CalcModel::CalculateOneArgs() {
   long double res = 0;
   if (numeric_stack_.empty()) {
-    error_ = true;
+    throw std::runtime_error("Invalid count functions with one arg");
   } else {
     long double a = numeric_stack_.back();
     numeric_stack_.pop_back();
-    int func = operation_stack_.back().name_;
+    int func = operation_stack_.back().Name();
     operation_stack_.pop_back();
     switch (func) {
       case kCos:
@@ -189,45 +201,43 @@ void CalcModel::CalculateOneArgs() noexcept {
   }
 }
 
-void CalcModel::Calculate() noexcept {
-  if (operation_stack_.back().name_ < kCos) {
+void CalcModel::Calculate() {
+  if (operation_stack_.back().Name() < kCos) {
     CalculateTwoArgs();
   } else {
     CalculateOneArgs();
   }
 }
 
-void CalcModel::SmartMult(std::string::const_iterator &cursor) noexcept {
+void CalcModel::SmartMult(std::string::const_iterator &cursor) {
   if (AddMult(cursor)) {
-    if (!operation_stack_.empty() && kM <= operation_stack_.back().priority_)
+    if (!operation_stack_.empty() && kM <= operation_stack_.back().Priority())
       while ((!operation_stack_.empty() &&
-              kM <= operation_stack_.back().priority_) &&
-             operation_stack_.back().name_ != kLBranch)
+              kM <= operation_stack_.back().Priority()) &&
+             operation_stack_.back().Name() != kLBranch) {
         Calculate();
+      }
+
     operation_stack_.emplace_back(kMul, kM);
   }
 }
 
-bool CalcModel::AddMult(std::string::const_iterator &cursor) noexcept {
+bool CalcModel::AddMult(std::string::const_iterator &cursor) {
   bool result = false;
   if (cursor > str_start_ && strchr(".)xX0123456789", *(--cursor)))
     result = true;
   return result;
 }
 
-int CalcModel::GetPriority(int name) noexcept {
-  int res = 0;
-  if (name >= kCos)
-    res = kF;
-  else {
-    if (name == kPlus || name == kMin) res = kL;
-    if (name == kMul || name == kDiv) res = kM;
-    if (name == kPow) res = kH;
-    if (name == kMod) res = kSpec;
-    if (name == kLBranch) res = kLB;
-    if (name == kRBranch) res = kRB;
-  }
-  return res;
+int CalcModel::Operation::GetPriority(int name) noexcept {
+  if (name >= kCos) return kF;
+  if (name == kPlus || name == kMin) return kL;
+  if (name == kMul || name == kDiv) return kM;
+  if (name == kPow) return kH;
+  if (name == kMod) return kSpec;
+  if (name == kLBranch) return kLB;
+  if (name == kRBranch) return kL;
+  return 0;
 }
 bool CalcModel::IsUnOp(std::string::const_iterator &cursor) {
   bool result = false;
@@ -239,7 +249,6 @@ bool CalcModel::IsUnOp(std::string::const_iterator &cursor) {
 void CalcModel::ClearData() noexcept {
   numeric_stack_.clear();
   operation_stack_.clear();
-  error_ = false;
 }
 
 };  // namespace s21

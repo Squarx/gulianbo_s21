@@ -158,44 +158,43 @@ TEST(CalcmodelTest, SmartMulti) {
   TestSmartMult tester;
 
   auto res = m.GetResult(tester.str_1);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 0.4564726253638138, 1e-6);
+
+  ASSERT_NEAR(res, 0.4564726253638138, 1e-6);
 
   res = m.GetResult(tester.str_2);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 0.4564726253638138, 1e-6);
+
+  ASSERT_NEAR(res, 0.4564726253638138, 1e-6);
 
   res = m.GetResult(tester.str_3);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 0.4564726253638138, 1e-6);
+
+  ASSERT_NEAR(res, 0.4564726253638138, 1e-6);
 
   res = m.GetResult(tester.str_4);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, -0.4564726253638138, 1e-6);
+
+  ASSERT_NEAR(res, -0.4564726253638138, 1e-6);
 
   res = m.GetResult(tester.str_5);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 1.0880422217787395, 1e-6);
+
+  ASSERT_NEAR(res, 1.0880422217787395, 1e-6);
 
   res = m.GetResult(tester.str_6);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 2.194181048, 1e-6);
 
-  res = m.GetResult(tester.str_7);
-  ASSERT_EQ(res.first, true);
+  ASSERT_NEAR(res, 2.194181048, 1e-6);
+
+  EXPECT_THROW(m.GetResult(tester.str_7), std::exception);
 
   tester.var_replace = 5;
   res = m.GetResult(tester.str_8, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, -1007.994956, 1e-6);
+
+  ASSERT_NEAR(res, -1007.994956, 1e-6);
 
   res = m.GetResult(tester.str_9, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, -40, 1e-6);
+
+  ASSERT_NEAR(res, -40, 1e-6);
 
   res = m.GetResult(tester.str_10, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, -0.3196414 + 1679616, 1e-6);
+
+  ASSERT_NEAR(res, -0.3196414 + 1679616, 1e-6);
 }
 
 TEST(CalcmodelTest, TestXvalue) {
@@ -203,288 +202,246 @@ TEST(CalcmodelTest, TestXvalue) {
   TestXvalue tester;
   tester.var_replace = 2;
   auto res = m.GetResult(tester.str_1, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_EQ(res.second, 20);
+
+  ASSERT_EQ(res, 20);
 
   res = m.GetResult(tester.str_2, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_EQ(res.second, -16);
+
+  ASSERT_EQ(res, -16);
 
   res = m.GetResult(tester.str_3, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_EQ(res.second, 1024);
+
+  ASSERT_EQ(res, 1024);
 
   res = m.GetResult(tester.str_4, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 3.90625e-3, 1e-6);
+
+  ASSERT_NEAR(res, 3.90625e-3, 1e-6);
 
   tester.var_replace = 7;
   res = m.GetResult(tester.str_5, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 3.28493299, 1e-6);
+
+  ASSERT_NEAR(res, 3.28493299, 1e-6);
 
   res = m.GetResult(tester.str_6, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 3.76951127, 1e-6);
+
+  ASSERT_NEAR(res, 3.76951127, 1e-6);
 
   res = m.GetResult(tester.str_7, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 4.35724, 1e-6);
+
+  ASSERT_NEAR(res, 4.35724, 1e-6);
 
   res = m.GetResult(tester.str_12, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_EQ(res.second, 7);
+
+  ASSERT_EQ(res, 7);
 
   res = m.GetResult(tester.str_13, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 0.7781512503836436, 1e-6);
+
+  ASSERT_NEAR(res, 0.7781512503836436, 1e-6);
 
   res = m.GetResult(tester.str_14, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_NEAR(res.second, 24.6407387, 1e-6);
+
+  ASSERT_NEAR(res, 24.6407387, 1e-6);
 
   res = m.GetResult(tester.str_15, tester.var_replace);
-  ASSERT_EQ(res.first, false);
-  ASSERT_EQ(res.second, 843143);
+
+  ASSERT_EQ(res, 843143);
 }
 
 TEST(CalcmodelTest, TestIncorrectInputStrings) {
   s21::CalcModel m;
   TestIncorrect tester;
-
-  auto res = m.GetResult(tester.str_2);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_2);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_3);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_4);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_5);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_6);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_7);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_8);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_9);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_10);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_11);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_14);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_15);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_16);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_17);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_18);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_19);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_20);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_21);
-  ASSERT_EQ(res.first, true);
-
-  res = m.GetResult(tester.str_22);
-  ASSERT_EQ(res.first, true);
+  EXPECT_THROW(m.GetResult(tester.str_2), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_3), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_4), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_5), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_6), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_7), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_8), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_9), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_10), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_11), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_12), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_14), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_15), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_16), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_17), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_18), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_19), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_20), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_21), std::exception);
+  EXPECT_THROW(m.GetResult(tester.str_22), std::exception);
 }
 
 TEST(CalcmodelTest, TestAllNormalStrings) {
   s21::CalcModel m;
   Test_calc tester;
   auto res = m.GetResult(tester.str_1);
-  ASSERT_NEAR(res.second, -30.072164948453608L, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, -30.072164948453608L, 1e-6);
 
   res = m.GetResult(tester.str_2);
-  ASSERT_EQ(res.second, -16L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, -16L);
+
   res = m.GetResult(tester.str_3);
-  ASSERT_EQ(res.second, 1024L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 1024L);
+
   res = m.GetResult(tester.str_4);
-  ASSERT_NEAR(res.second, 0.00390625, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 0.00390625, 1e-6);
+
   res = m.GetResult(tester.str_5);
-  ASSERT_NEAR(res.second, 3.22108844, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 3.22108844, 1e-6);
+
   res = m.GetResult(tester.str_6);
-  ASSERT_NEAR(res.second, 3.82421094, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 3.82421094, 1e-6);
+
   res = m.GetResult(tester.str_7);
-  ASSERT_NEAR(res.second, 4.2114419, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 4.2114419, 1e-6);
+
   res = m.GetResult(tester.str_9);
-  ASSERT_NEAR(res.second, 3.976994151, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 3.976994151, 1e-6);
+
   res = m.GetResult(tester.str_10);
-  ASSERT_NEAR(res.second, 3.876987483, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 3.876987483, 1e-6);
+
   res = m.GetResult(tester.str_11);
-  ASSERT_NEAR(res.second, 3.053629822, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 3.053629822, 1e-6);
+
   res = m.GetResult(tester.str_12);
-  ASSERT_EQ(res.second, 7L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 7L);
+
   res = m.GetResult(tester.str_12_2);
-  ASSERT_TRUE(std::isnan(res.second));
-  ASSERT_EQ(res.first, false);
+  ASSERT_TRUE(std::isnan(res));
+
   res = m.GetResult(tester.str_13);
-  ASSERT_NEAR(res.second, 0.7781512503836436, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 0.7781512503836436, 1e-6);
+
   res = m.GetResult(tester.str_14);
-  ASSERT_NEAR(res.second, 24.6407387, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 24.6407387, 1e-6);
+
   res = m.GetResult(tester.str_15);
-  ASSERT_EQ(res.second, 843143L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 843143L);
+
   res = m.GetResult(tester.str_16);
-  ASSERT_NEAR(res.second, 9.729550745, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 9.729550745, 1e-6);
+
   res = m.GetResult(tester.str_17);
-  ASSERT_EQ(res.second, -7L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, -7L);
+
   res = m.GetResult(tester.str_18);
-  ASSERT_EQ(res.second, 256L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 256L);
+
   res = m.GetResult(tester.str_19);
-  ASSERT_NEAR(res.second, 0.10406267813194549, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 0.10406267813194549, 1e-6);
+
   res = m.GetResult(tester.str_20);
-  ASSERT_EQ(res.second, 1L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 1L);
+
   res = m.GetResult(tester.str_21);
-  ASSERT_EQ(res.second, -2L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, -2L);
+
   res = m.GetResult(tester.str_22);
-  ASSERT_EQ(res.second, 2L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 2L);
+
   res = m.GetResult(tester.str_23);
-  ASSERT_EQ(res.second, 4L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 4L);
+
   res = m.GetResult(tester.str_24);
-  ASSERT_EQ(res.second, 1L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 1L);
+
   res = m.GetResult(tester.str_25);
-  ASSERT_EQ(res.second, 0L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 0L);
+
   res = m.GetResult(tester.str_26);
-  ASSERT_EQ(res.second, 0L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 0L);
+
   res = m.GetResult(tester.str_27);
-  ASSERT_NEAR(res.second, 1.557408, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 1.557408, 1e-6);
+
   res = m.GetResult(tester.str_28);
-  ASSERT_NEAR(res.second, 2L, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 2L, 1e-6);
+
   res = m.GetResult(tester.str_29);
-  ASSERT_NEAR(res.second, 0.434294, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 0.434294, 1e-6);
+
   res = m.GetResult(tester.str_30);
-  ASSERT_NEAR(res.second, 1L, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 1L, 1e-6);
+
   res = m.GetResult(tester.str_31);
-  ASSERT_EQ(res.second, 25L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 25L);
+
   res = m.GetResult(tester.str_32);
-  ASSERT_EQ(res.second, 25L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 25L);
+
   res = m.GetResult(tester.str_33);
-  ASSERT_EQ(res.second, 121L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 121L);
+
   res = m.GetResult(tester.str_34);
-  ASSERT_NEAR(res.second, -0.839072, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, -0.839072, 1e-6);
+
   res = m.GetResult(tester.str_35);
-  ASSERT_EQ(res.second, -1L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, -1L);
+
   res = m.GetResult(tester.str_36);
-  ASSERT_EQ(res.second, 4L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 4L);
+
   res = m.GetResult(tester.str_37);
-  ASSERT_EQ(res.second, 8L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 8L);
+
   res = m.GetResult(tester.str_38);
-  ASSERT_EQ(res.second, 8L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 8L);
+
   res = m.GetResult(tester.str_39);
-  ASSERT_EQ(res.second, -2L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, -2L);
+
   res = m.GetResult(tester.str_40);
-  ASSERT_EQ(res.second, 16L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 16L);
+
   res = m.GetResult(tester.str_41);
-  ASSERT_EQ(res.second, 2L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, 2L);
+
   res = m.GetResult(tester.str_42);
-  ASSERT_EQ(res.second, -1L);
-  ASSERT_EQ(res.first, false);
+  ASSERT_EQ(res, -1L);
+
   res = m.GetResult(tester.str_43);
-  ASSERT_NEAR(res.second, 4.498866159, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 4.498866159, 1e-6);
+
   res = m.GetResult(tester.str_44);
-  ASSERT_NEAR(res.second, 49.374741849295295, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 49.374741849295295, 1e-6);
+
   res = m.GetResult(tester.str_45);
-  ASSERT_NEAR(res.second, 21951, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 21951, 1e-6);
+
   res = m.GetResult(tester.str_46);
-  ASSERT_NEAR(res.second, 1.5, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 1.5, 1e-6);
+
   res = m.GetResult(tester.str_47);
-  ASSERT_NEAR(res.second, 28, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 28, 1e-6);
+
   res = m.GetResult(tester.str_48);
-  ASSERT_NEAR(res.second, 3, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 3, 1e-6);
+
   res = m.GetResult(tester.str_49);
-  ASSERT_NEAR(res.second, 16, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 16, 1e-6);
+
   res = m.GetResult(tester.str_50);
-  ASSERT_NEAR(res.second, 7.5633632117622634, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 7.5633632117622634, 1e-6);
+
   res = m.GetResult(tester.str_51);
-  ASSERT_NEAR(res.second, 1.0211089462271227, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 1.0211089462271227, 1e-6);
+
   res = m.GetResult(tester.str_52);
-  ASSERT_NEAR(res.second, 2.189711247886146, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 2.189711247886146, 1e-6);
+
   res = m.GetResult(tester.str_53);
-  ASSERT_NEAR(res.second, 30, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 30, 1e-6);
+
   res = m.GetResult(tester.str_54);
-  ASSERT_NEAR(res.second, 0, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 0, 1e-6);
+
   res = m.GetResult(tester.str_55);
-  ASSERT_NEAR(res.second, 36.200558443419763, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 36.200558443419763, 1e-6);
+
   res = m.GetResult(tester.str_56);
-  ASSERT_NEAR(res.second, 441, 1e-6);
-  ASSERT_EQ(res.first, false);
+  ASSERT_NEAR(res, 441, 1e-6);
 }
 
 int main(int argc, char **argv) {

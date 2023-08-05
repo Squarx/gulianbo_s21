@@ -5,6 +5,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 
+#include "../common/MyQDoubleValidator.h"
 #include "../controller/Controller.h"
 #include "creditcalc.h"
 #include "debetcalc.h"
@@ -19,6 +20,8 @@ class SmartCalcView : public QWidget {
  public:
   explicit SmartCalcView(QWidget *parent = nullptr,
                          s21::Controller *controller = nullptr);
+  SmartCalcView(const SmartCalcView &) = delete;
+  SmartCalcView &operator=(const SmartCalcView &) = delete;
   ~SmartCalcView();
 
  protected:
@@ -52,11 +55,11 @@ class SmartCalcView : public QWidget {
 
   Ui::SmartCalc *ui;
   s21::Controller *controller_;
-  QDoubleValidator *float_validator_;
-  QValidator *validator_input_;
-  QPlot *plot_view_;
-  CreditCalc *credit_view_;
-  DebetCalc *debet_view_;
+  std::unique_ptr<MyQDoubleValidator> float_validator_;
+  std::unique_ptr<QValidator> validator_input_;
+  std::unique_ptr<QPlot> plot_view_;
+  std::unique_ptr<CreditCalc> credit_view_;
+  std::unique_ptr<DebetCalc> debet_view_;
 };
 
 #endif  // SMARTCALC_H

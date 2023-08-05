@@ -12,6 +12,7 @@
 #include "../model/Calcmodel.h"
 #include "../model/CreditModel.h"
 #include "../model/DebetModel.h"
+#include "qlineedit.h"
 
 namespace s21 {
 class Controller {
@@ -21,24 +22,31 @@ class Controller {
       : model_(model), credit_model_(credit_model), debet_model_(debet_model){};
 
   std::string GetResult(std::string input, const std::string &var_x);
-  template <class T>
-  void FillQVector(double x_start, double x_end, std::string &graph, T &vec_x,
-                   T &vec_y) {
-    model_->FillQVector<T>(x_start, x_end, graph, vec_x, vec_y);
-  }
-  std::array<std::vector<double> *, 5> GetCreditAnnu(double mortgage,
-                                                     double percent, int month);
-  std::array<std::vector<double> *, 5> GetCreditDiff(double mortgage,
-                                                     double percent, int month);
 
-  std::pair<std::vector<std::array<QString, 5>> *, std::array<QString, 3> *>
+  void FillQVector(double x_start, double x_end, std::string &graph,
+                   QVector<double> &vec_x, QVector<double> &vec_y,
+                   QLineEdit *input_str) {
+    try {
+      model_->FillQVector<QVector<double>>(x_start, x_end, graph, vec_x, vec_y);
+    } catch (const std::exception &e) {
+      input_str->setText(QString::fromStdString(e.what()));
+    }
+  }
+  std::map<CreditModel::TableColums, std::vector<long double> *> GetCreditAnnu(
+      long double mortgage, long double percent, int month);
+  std::map<CreditModel::TableColums, std::vector<long double> *> GetCreditDiff(
+      long double mortgage, long double percent, int month);
+
+  std::pair<std::vector<std::array<QString, 5>> *, std::array<QString, 5> *>
   GetDebetTable(double deposit, QDate start_date, QDate end_date,
                 double interest_rate, double tax_rate, int freq_payment,
                 bool capitalize, int freq_put, double put_sum,
                 QDate start_date_put, int freq_withdraw, double withdraw_sum,
                 QDate start_date_withdraw, QTableWidget *table_put,
                 QTableWidget *table_withdraw);
-  std::array<double, 4> GetCreditResults();
+  std::map<CreditModel::TableColums, long double> GetCreditResults();
+  std::map<CreditModel::TableColums, std::vector<long double> *> GetCreditTable(
+      long double mortgage, long double percent, int month, bool is_annu);
 
  private:
   CalcModel *model_;

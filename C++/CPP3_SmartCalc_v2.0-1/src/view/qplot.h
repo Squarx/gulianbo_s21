@@ -3,6 +3,7 @@
 
 #include <QListWidgetItem>
 
+#include "../common/MyQDoubleValidator.h"
 #include "../controller/Controller.h"
 
 namespace Ui {
@@ -41,9 +42,9 @@ class QPlot : public QWidget {
 
   Ui::QPlot *ui;
   s21::Controller *controller_;
-  QIntValidator *int_validator_;
-  QDoubleValidator *float_validator_;
-  QValidator *validator_input_;
+  std::unique_ptr<QIntValidator> int_validator_;
+  std::unique_ptr<MyQDoubleValidator> float_validator_;
+  std::unique_ptr<QValidator> validator_input_;
 };
 
 #endif  // QPLOT_H

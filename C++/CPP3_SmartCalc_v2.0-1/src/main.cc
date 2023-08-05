@@ -1,17 +1,14 @@
-//#include "consoleView.h"
-#include "model/Calcmodel.h"
+#include <QApplication>
 
-int main() {
-  std::string str_1 = "(((9 - 2) ^ 3) mod 5 * (7 - 4)) + 12 / 4";
-  s21::CalcModel t;
-  //  s21::CreditModel m;
-  //  s21::Controller c(&t, &m);
-  //  auto r = t.GetDataGraph(-0.0001, 0.00001 ,str_1);
-  // std::cout << t.GetResult(str_1, 0).first << "\n";
-  std::cout << t.GetResult(str_1, 0).second << "\n";
+#include "view/mainwindow.h"
 
-  //  for(auto i: *r.second) {
-  //    std::cout << i << std::endl;
-  //  }
-  return 0;
+int main(int argc, char *argv[]) {
+  s21::CalcModel model;
+  s21::CreditModel credit_model;
+  s21::DebetModel debet_model;
+  s21::Controller cont(&model, &credit_model, &debet_model);
+  QApplication a(argc, argv);
+  MainWindow w(nullptr, &cont);
+  w.show();
+  return a.exec();
 }

@@ -20,87 +20,95 @@ class CalcModel {
  public:
   template <class T>
   void FillQVector(double x_start, double x_end, std::string &graph, T &vec_x,
-                   T &vec_y) noexcept {
+                   T &vec_y) {
     int num_steps = 1e4;
-    bool err = false;
-    if (x_start > x_end) std::swap(x_start, x_end);
-    double step = (x_end - x_start) / static_cast<double>(num_steps);
-    for (auto i = 0; !err && i < num_steps; i++) {
-      double curr_val = x_start + i * step;
-      auto value = GetResult(graph, curr_val);
-      err = value.first;
-      vec_x.push_back(curr_val);
-      vec_y.push_back(value.second);
-    }
-    if (err) {
+    try {
+      if (x_start > x_end) std::swap(x_start, x_end);
+      double step = (x_end - x_start) / static_cast<double>(num_steps);
+      for (auto i = 0; i < num_steps; i++) {
+        double curr_val = x_start + i * step;
+        auto value = GetResult(graph, curr_val);
+        vec_x.push_back(curr_val);
+        vec_y.push_back(value);
+      }
+    } catch (const std::exception &e) {
       vec_x.clear();
       vec_y.clear();
+      throw;
     }
   }
 
-  std::pair<bool, long double> GetResult(std::string &input,
-                                         long double var_x = 0) noexcept;
+  long double GetResult(std::string &input, long double var_x = 0);
 
  private:
   typedef struct Operation {
-    Operation(int name, int priority) {
-      this->name_ = name;
-      this->priority_ = priority;
+    explicit Operation(int name) {
+      name_ = name;
+      priority_ = GetPriority(name);
     }
+    Operation(int name, int priority) {
+      name_ = name;
+      priority_ = priority;
+    }
+    [[nodiscard]] int Priority() const { return priority_; }
+    [[nodiscard]] int Name() const { return name_; }
+    static int GetPriority(int name) noexcept;
+
+   private:
     int name_;
     int priority_;
   } OP;
 
   enum operators {
-    kMin = 1,
-    kPlus = 2,
-    kMul = 3,
-    kDiv = 4,
-    kPow = 5,
-    kMod = 6,
-    kLBranch = 7,
-    kRBranch = 8,
-    kCos = 11,
-    kSin = 12,
-    kTan = 13,
-    kAcos = 14,
-    kAsin = 15,
-    kAtan = 16,
-    kSqrt = 17,
-    kLn = 18,
-    kLog = 19,
+    kMin,
+    kPlus,
+    kMul,
+    kDiv,
+    kPow,
+    kMod,
+    kLBranch,
+    kRBranch,
+    kCos,
+    kSin,
+    kTan,
+    kAcos,
+    kAsin,
+    kAtan,
+    kSqrt,
+    kLn,
+    kLog,
   };
 
-  enum priority { kRB = 1, kL = 1, kSpec = 2, kM = 3, kH = 5, kF = 6, kLB = 7 };
+  enum priority { kL, kSpec, kM, kUn, kH, kF, kLB };
 
   bool ProcessNumericToken(std::string::const_iterator &start,
-                           const std::string::const_iterator &end) noexcept;
+                           const std::string::const_iterator &end);
   bool ProcessOperation(std::string::const_iterator &start,
-                        const std::string::const_iterator &end) noexcept;
+                        const std::string::const_iterator &end);
   bool ProcessX(std::string::const_iterator &start,
-                const std::string::const_iterator &end,
-                long double var_x) noexcept;
-  void CompressFunc(OP current_operation) noexcept;
-  void Calculate() noexcept;
-  bool AddMult(std::string::const_iterator &cursor) noexcept;
-  void SmartMult(std::string::const_iterator &cursor) noexcept;
+                const std::string::const_iterator &end, long double var_x);
+  void CompressFunc(OP current_operation);
+  bool AddMult(std::string::const_iterator &cursor);
+  void SmartMult(std::string::const_iterator &cursor);
   bool IsUnOp(std::string::const_iterator &cursor);
   void NonUnProcess(const std::string &token,
-                    std::string::const_iterator &start) noexcept;
-  static int GetPriority(int name) noexcept;
-  static inline bool IsFuncTwoArg(int name) noexcept { return name < kLBranch; }
-  static inline bool IsBranch(int name) noexcept {
+                    std::string::const_iterator &start);
+
+  static inline bool IsFuncTwoArg(int name) { return name < kLBranch; }
+  static inline bool IsBranch(int name) {
     return name == kLBranch || name == kRBranch;
   }
+
   void ClearData() noexcept;
-  void CalculateTwoArgs() noexcept;
-  void CalculateOneArgs() noexcept;
+  void CalculateTwoArgs();
+  void CalculateOneArgs();
+  void Calculate();
 
   const std::regex numeric_pattern_{R"(^(\d*[.])?\d+([eE][-+]?\d+)?)"};
   const std::regex operator_pattern_{
       R"(^([-+*\/\^]|mod|\(|\)|cos|sin|tan|acos|asin|atan|sqrt|ln|log))"};
   const std::regex var_x_pattern_{R"(^(x|X))"};
-  const std::map<std::string, int> operation_dict{
+  const std::map<std::string, int> operation_dict_{
       {"-", kMin},     {"+", kPlus},    {"*", kMul},     {"/", kDiv},
       {"^", kPow},     {"mod", kMod},   {"(", kLBranch}, {")", kRBranch},
       {"cos", kCos},   {"sin", kSin},   {"tan", kTan},   {"acos", kAcos},
@@ -111,7 +119,6 @@ class CalcModel {
   std::list<long double> numeric_stack_{};
   std::list<OP> operation_stack_{};
   std::smatch match_{};
-  bool error_{false};
 };
 }  // namespace s21
 

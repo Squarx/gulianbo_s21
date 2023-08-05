@@ -11,18 +11,19 @@ QPlot::QPlot(QWidget* parent, s21::Controller* controller)
     : QWidget(parent),
       ui(new Ui::QPlot),
       controller_(controller),
-      int_validator_(new QIntValidator(-1e6, 1e6, this)),
-      float_validator_(new QDoubleValidator(-1e6, 1e6, 6, this)),
-      validator_input_(
-          new QRegularExpressionValidator(r_theory_of_everything, this)) {
+      int_validator_(std::make_unique<QIntValidator>(-1e6, 1e6, this)),
+      float_validator_(
+          std::make_unique<MyQDoubleValidator>(-1e6, 1e6, 6, this)),
+      validator_input_(std::make_unique<QRegularExpressionValidator>(
+          r_theory_of_everything, this)) {
   ui->setupUi(this);
   float_validator_->setLocale(QLocale::C);
   float_validator_->setNotation(QDoubleValidator::StandardNotation);
-  ui->lineEdit_start_x->setValidator(int_validator_);
-  ui->lineEdit_start_y->setValidator(int_validator_);
-  ui->lineEdit_end_x->setValidator(int_validator_);
-  ui->lineEdit_end_y->setValidator(int_validator_);
-  ui->lineEdit->setValidator(validator_input_);
+  ui->lineEdit_start_x->setValidator(int_validator_.get());
+  ui->lineEdit_start_y->setValidator(int_validator_.get());
+  ui->lineEdit_end_x->setValidator(int_validator_.get());
+  ui->lineEdit_end_y->setValidator(int_validator_.get());
+  ui->lineEdit->setValidator(validator_input_.get());
 
   ui->widget_plot->setBackground(Qt::transparent);
   ui->widget_plot->setInteraction(QCP::iRangeZoom, true);
@@ -38,14 +39,10 @@ QPlot::QPlot(QWidget* parent, s21::Controller* controller)
   ui->listWidget->addItem("cos(X)");
 }
 
-QPlot::~QPlot() {
-  delete ui;
-  delete int_validator_;
-  delete float_validator_;
-  delete validator_input_;
-}
+QPlot::~QPlot() { delete ui; }
 
 void QPlot::on_pushButton_get_graph_clicked() {
+  QLineEdit* input = ui->lineEdit;
   QString currentText = ui->lineEdit->text();
   bool textFound = false;
   for (int i = 0; i < ui->listWidget->count() && !textFound; ++i)
@@ -60,28 +57,36 @@ void QPlot::on_pushButton_get_graph_clicked() {
   QVector<double> x{}, y{};
   x.clear();
   y.clear();
+  controller_->FillQVector(x_start, x_end, graph, x, y, input);
+  onQVectorFilled(x, y);
+  //  std::mutex mtx;
 
-  std::mutex mtx;
-
-  std::thread thread([this, x_start, x_end, &graph, &x, &y, &mtx]() {
-    std::lock_guard<std::mutex> lock(mtx);
-    controller_->FillQVector<QVector<double>>(x_start, x_end, graph, x, y);
-    emit onQVectorFilled(x, y);
-  });
-  thread.join();
+  //  std::thread thread([this, x_start, x_end, &graph, &x, &y, &mtx, input ]()
+  //  {
+  //    std::lock_guard<std::mutex> lock(mtx);
+  //    controller_->FillQVector<QVector<double>, QLineEdit*, QString>(x_start,
+  //    x_end, graph, x, y, input); emit onQVectorFilled(x, y);
+  //  });
+  //  thread.join();
 }
 
 void QPlot::onQVectorFilled(const QVector<double>& x,
                             const QVector<double>& y) {
+  if (x.empty() || y.empty()) return;
   ui->widget_plot->graph(0)->addData(x, y);
   long double x_start = ui->lineEdit_start_x->text().toDouble();
   long double x_end = ui->lineEdit_end_x->text().toDouble();
-  if (ui->checkBox_autoscale->isChecked()) {
-    double minY = *std::min_element(y.constBegin(), y.constEnd());
-    double maxY = *std::max_element(y.constBegin(), y.constEnd());
+  double min_y = *std::min_element(y.constBegin(), y.constEnd());
+  double max_y = *std::max_element(y.constBegin(), y.constEnd());
+  bool invalid_range = (std::isnan(min_y) || std::isinf(min_y) ||
+                        std::isnan(max_y) || std::isinf(max_y));
+  if (ui->checkBox_autoscale->isChecked() && !invalid_range) {
     ui->widget_plot->xAxis->setRange(x_start, x_end);
-    ui->widget_plot->yAxis->setRange(minY, maxY);
+    ui->widget_plot->yAxis->setRange(min_y, max_y);
   } else {
+    if (invalid_range && ui->checkBox_autoscale->isChecked()) {
+      ui->checkBox_autoscale->click();
+    }
     long double y_start = ui->lineEdit_start_y->text().toDouble();
     long double y_end = ui->lineEdit_end_y->text().toDouble();
     ui->widget_plot->xAxis->setRange(x_start, x_end);

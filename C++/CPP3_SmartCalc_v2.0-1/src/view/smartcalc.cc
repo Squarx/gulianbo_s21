@@ -7,20 +7,21 @@ SmartCalcView::SmartCalcView(QWidget* parent, s21::Controller* controller)
     : QWidget(parent),
       ui(new Ui::SmartCalc),
       controller_(controller),
-      float_validator_(new QDoubleValidator(-1e6, 1e6, 6, this)),
-      validator_input_(
-          new QRegularExpressionValidator(r_theory_of_everything, this)),
-      plot_view_(new QPlot(nullptr, controller)),
-      credit_view_(new CreditCalc(nullptr, controller)),
-      debet_view_(new DebetCalc(nullptr, controller))
+      float_validator_(
+          std::make_unique<MyQDoubleValidator>(-1e6, 1e6, 6, this)),
+      validator_input_(std::make_unique<QRegularExpressionValidator>(
+          r_theory_of_everything, this)),
+      plot_view_(std::make_unique<QPlot>(nullptr, controller)),
+      credit_view_(std::make_unique<CreditCalc>(nullptr, controller)),
+      debet_view_(std::make_unique<DebetCalc>(nullptr, controller))
 
 {
   ui->setupUi(this);
 
   float_validator_->setLocale(QLocale::C);
   float_validator_->setNotation(QDoubleValidator::StandardNotation);
-  ui->LineInput->setValidator(validator_input_);
-  ui->lineEdit_x_value->setValidator(float_validator_);
+  ui->LineInput->setValidator(validator_input_.get());
+  ui->lineEdit_x_value->setValidator(float_validator_.get());
 
   QList<QAbstractButton*> buttons = ui->NumsGroup->buttons();
   for (QAbstractButton* button : buttons)
@@ -35,9 +36,11 @@ SmartCalcView::SmartCalcView(QWidget* parent, s21::Controller* controller)
   ui->LineInput->setText("0");
   ui->LineInput->setReadOnly(1);
 
-  connect(plot_view_, &QPlot::CalcWindow, this, &SmartCalcView::show);
-  connect(credit_view_, &CreditCalc::CalcWindow, this, &SmartCalcView::show);
-  connect(debet_view_, &DebetCalc::CalcWindow, this, &SmartCalcView::show);
+  connect(plot_view_.get(), &QPlot::CalcWindow, this, &SmartCalcView::show);
+  connect(credit_view_.get(), &CreditCalc::CalcWindow, this,
+          &SmartCalcView::show);
+  connect(debet_view_.get(), &DebetCalc::CalcWindow, this,
+          &SmartCalcView::show);
 
   std::vector<QString> set_up;
   set_up.push_back(
@@ -85,14 +88,7 @@ SmartCalcView::SmartCalcView(QWidget* parent, s21::Controller* controller)
   }
 }
 
-SmartCalcView::~SmartCalcView() {
-  delete ui;
-  delete float_validator_;
-  delete validator_input_;
-  delete plot_view_;
-  delete credit_view_;
-  delete debet_view_;
-}
+SmartCalcView::~SmartCalcView() { delete ui; }
 
 void SmartCalcView::on_pushButton_eq_clicked() {
   QString currentText = ui->LineInput->text();

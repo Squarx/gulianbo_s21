@@ -1,6 +1,7 @@
 #ifndef DEBETCALC_H
 #define DEBETCALC_H
 
+#include "../common/MyQDoubleValidator.h"
 #include "../controller/Controller.h"
 
 namespace Ui {
@@ -37,13 +38,6 @@ class DebetCalc : public QWidget {
 
   void on_comboBox_put_currentTextChanged(const QString& arg1);
 
-  void getListOfDates(QDate start, QDate end, int freq,
-                      std::vector<QDate>& list_payment_date);
-
-  void getListOfPuts(QDate start, QDate start_put, QDate end, int freq_put,
-                     double put_sum, QTableWidget* tableWidget_put,
-                     std::vector<std::pair<QDate, double>>& list_put_data);
-
   void on_pushButton_start_put_clicked();
 
   void on_comboBox_withdraw_currentTextChanged(const QString& arg1);
@@ -60,16 +54,22 @@ class DebetCalc : public QWidget {
 
   bool Validate(int freq_put, int freq_withdraw);
 
+  void RenderError(const QString& err = "Error");
+
  private:
+  using TableColumns = s21::DebetModel::TableColumns;
+  using ResultColumns = s21::DebetModel::ResultColumns;
+
   enum States { kDefaut, kStart, kPut, kWithdraw, kCPut, kCWithdraw };
   enum Period { kDay, kMonth, kYear, kOnce, kNo, kCustom };
+
   Ui::DebetCalc* ui;
   s21::Controller* controller_;
   QDate start_date;
-  QIntValidator* month_validator_;
-  QDoubleValidator* percents_validator_;
-  QDoubleValidator* operation_validator_;
-  QDoubleValidator* deposit_validator_;
+  std::unique_ptr<QIntValidator> month_validator_;
+  std::unique_ptr<MyQDoubleValidator> percents_validator_;
+  std::unique_ptr<MyQDoubleValidator> operation_validator_;
+  std::unique_ptr<MyQDoubleValidator> deposit_validator_;
   int state = kDefaut;
 };
 
