@@ -9,6 +9,7 @@ elif [ $# \> 0 ]; then
     exit
 fi
 
+
 source $FILE
 set_date
 printer_3

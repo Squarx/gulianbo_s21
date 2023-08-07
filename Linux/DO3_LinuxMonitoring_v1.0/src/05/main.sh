@@ -1,4 +1,6 @@
 #!/bin/bash
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 FILE=../func.sh
 chmod +rx $FILE 2>/dev/null
 if [ ! -f $FILE ]; then
@@ -6,6 +8,7 @@ if [ ! -f $FILE ]; then
     exit
 fi
 source $FILE
+
 if [ $#  \> 1 ] || [ $#  == 0 ] ; then
     echo "Script works with 1 arg"
 else 

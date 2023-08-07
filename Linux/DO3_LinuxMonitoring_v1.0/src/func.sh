@@ -96,13 +96,32 @@ fi
 sudo timedatectl set-timezone "$zone" 
 }
 
+function converter_mask() {
+    prefix_mask=$1
+    byte_count=$((prefix_mask / 8))
+    bit_count=$((prefix_mask % 8))
+    mask=""
+    for ((i=0; i<4; i++)); do
+        if [ $byte_count -gt 0 ]; then
+            mask+="255."
+            byte_count=$((byte_count - 1))
+        elif [ $bit_count -gt 0 ]; then
+            mask+="$((256 - 2**(8 - bit_count)))."
+            bit_count=0
+        else
+            mask+="0."
+        fi
+    done
+    mask="${mask%?}"
+    echo "$mask"
+}
 
 function save_file() {
     echo -n "Save result in file (Y/N)? "
     read input
    case "$input" in
     "Y" | "y")
-    printer_3 >> $(date +"%d_%m_%y_%H_%M_%S").status
+    echo -e "$result" >> $(date +"%d_%m_%y_%H_%M_%S").status
     ;;
     *)
     echo "Not saving"
@@ -111,9 +130,45 @@ esac
 }
 
 
+function get_ram_memory() {
+    free | awk  '
+    BEGIN {
+            col='$1';
+            unit = 1024 * 1024;
+            format = "%.3f GB\n";
+    } 
+    /Mem/ {
+        printf format, $col / unit;
+    }'
+}
+
+function get_space_memory() {
+    free | awk  '
+    BEGIN {
+            col='$1';
+            unit = 1024 * 1024;
+            format = "%.3f GB\n";
+    } 
+    /Mem/ {
+        printf format, $col / unit;
+    }'
+}
+
+function get_space_memory() {
+    df -l | grep "\/$" | awk '
+     BEGIN {
+            col='$1';
+            unit = 1024;
+            format = "%.2f MB\n";
+    } 
+    {
+        printf format, $col / unit;
+    }'
+}
 function printer_3() {
     # echo $#
-    timezone=$(timedatectl | grep Time | sed 's/^[[:space:]]*//' | awk '{print $3 " UTC "  substr($5, 0, 1) substr($5, 3, 1) }')
+    timezone="$(cat /etc/timezone) UTC $(date +%:::z | sed 's/0//')"
+    # timezone=$(timedatectl | grep Time | sed 's/^[[:space:]]*//' | awk '{print $3 " UTC "  substr($5, 0, 1) substr($5, 3, 1) }')
     host=$(hostname)
     user=($USER)
     os=$(hostnamectl | grep 'Operating System: ' | sed 's/Operating System: //')
@@ -121,34 +176,51 @@ function printer_3() {
     uptime=$(uptime --pretty)
     uptime_sec=$(awk '{print $1}' /proc/uptime)
     ip=$(ip -4 a | grep "inet " | sed 's/\// /' | sed -n '2p' | awk '{print $2}')
-    mask=$(ifconfig | grep inet | awk '{print $4}' | sed -n '1p')
-    gateway=$(ip r | grep default | awk '{print $3}')
-    ram_total=$(free | grep Mem | awk '{printf "%.3f GB", $2 / 1048576}')
-    ram_used=$(free | grep Mem | awk '{printf "%.3f GB", $3 / 1048576}')
-    ram_free=$(free | grep Mem | awk '{printf "%.3f GB", $4 / 1048576}')
-    space_root=$(df -l |  grep  "\/$" | awk '{printf "%.2f MB", $2 / 1024}')
-    space_root_used=$(df -l |  grep  "\/$" | awk '{printf "%.2f MB", $3 / 1024}')
-    space_root_free=$(df -l |  grep  "\/$" | awk '{printf "%.2f MB", $4 / 1024}')
+    mask=$(converter_mask $(ip a | grep -e "$ip" | awk '{printf "%s\n", $2}' | awk -F"/" '{print $2}'))
+    gateway=$(ip r | grep default | awk '{print $3}' | head -1)
+    ram_total=$(get_ram_memory 2)
+    ram_used=$(get_ram_memory 3)
+    ram_free=$(get_ram_memory 4)
+    space_root=$(get_space_memory 2)
+    space_root_used=$(get_space_memory 3)
+    space_root_free=$(get_space_memory 4)
 # Параметр 1 - это фон названий значений (HOSTNAME, TIMEZONE, USER и т.д.)
 # Параметр 2 - это цвет шрифта названий значений (HOSTNAME, TIMEZONE, USER и т.д.)
 # Параметр 3 - это фон значений (после знака '=')
 # Параметр 4 - это цвет шрифта значений (после знака '=')
-    printf "${1}HOSTNAME$3= $2%s$3\n" "$host"
-    printf "${1}TIMEZONE${3} = $2%s${3}\n" "$timezone"
-    printf "${1}USER${3}= $2%s${3}\n" "$user"
-    printf "${1}OS${3}= $2%s${3}\n" "$os"
-    printf "${1}DATE${3} = $2%s${3}\n" "$date"
-    printf "${1}UPTIME${3} = $2%s${3}\n" "$uptime"
-    printf "${1}UPTIME_SEC${3} = $2%s${3}\n" "up $uptime_sec sec"
-    printf "${1}IP${3} = $2%s${3}\n" "$ip"
-    printf "${1}MASK${3} = $2%s${3}\n" "$mask"
-    printf "${1}GATEWAY${3} = $2%s${3}\n" "$gateway"
-    printf "${1}RAM_TOTAL${3} = $2%s${3}\n" "$ram_total"
-    printf "${1}RAM_USED${3} = $2%s${3}\n" "$ram_used"
-    printf "${1}RAM_FREE${3} = $2%s${3}\n" "$ram_free"
-    printf "${1}SPACE_ROOT${3} = $2%s${3}\n" "$space_root"
-    printf "${1}SPACE_ROOT_USED${3} = $2%s${3}\n" "$space_root_used"
-    printf "${1}SPACE_ROOT_FREE${3} = ${2}%s${3}\n" "$space_root_free"
+    result=''
+    result+=$(printf "${1}HOSTNAME$3 = $2%s$3\n" "$host")
+    result+='\n'
+    result+=$(printf "${1}TIMEZONE${3} = $2%s${3}\n" "$timezone")
+    result+='\n'
+    result+=$(printf "${1}USER${3} = $2%s${3}\n" "$user")
+    result+='\n'
+    result+=$(printf "${1}OS${3} = $2%s${3}\n" "$os")
+    result+='\n'
+    result+=$(printf "${1}DATE${3} = $2%s${3}\n" "$date")
+    result+='\n'
+    result+=$(printf "${1}UPTIME${3} = $2%s${3}\n" "$uptime")
+    result+='\n'
+    result+=$(printf "${1}UPTIME_SEC${3} = $2%s${3}\n" "up $uptime_sec sec")
+    result+='\n'
+    result+=$(printf "${1}IP${3} = $2%s${3}\n" "$ip")
+    result+='\n'
+    result+=$(printf "${1}MASK${3} = $2%s${3}\n" "$mask")
+    result+='\n'
+    result+=$(printf "${1}GATEWAY${3} = $2%s${3}\n" "$gateway")
+    result+='\n'
+    result+=$(printf "${1}RAM_TOTAL${3} = $2%s${3}\n" "$ram_total")
+    result+='\n'
+    result+=$(printf "${1}RAM_USED${3} = $2%s${3}\n" "$ram_used")
+    result+='\n'
+    result+=$(printf "${1}RAM_FREE${3} = $2%s${3}\n" "$ram_free")
+    result+='\n'
+    result+=$(printf "${1}SPACE_ROOT${3} = $2%s${3}\n" "$space_root")
+    result+='\n'
+    result+=$(printf "${1}SPACE_ROOT_USED${3} = $2%s${3}\n" "$space_root_used")
+    result+='\n'
+    result+=$(printf "${1}SPACE_ROOT_FREE${3} = ${2}%s${3}\n" "$space_root_free")
+    echo -e "$result"
 }
 
 
@@ -162,19 +234,23 @@ echo "Configuration files (with the .conf extension) =" $(find $1 2>/dev/null -t
 echo "Text files = "$(find $1 2>/dev/null -type f -name "*.txt" | wc -l)
 echo "Executable files = " $(find $1 -type f -executable  2>/dev/null | wc -l)
 echo "Log files (with the extension .log) = " $(find $1 2>/dev/null -type f -name "*.log" | wc -l)
-echo "Archive files = " $(find $1 2>/dev/null -type f -name "*.7z" -oname ".zip" -oname "*.rar" -oname "*.tar" | wc -l)
+echo "Archive files = " $(find "$1" -type f -name "*.7z" -o -name "*.zip" -o -name "*.rar" -o -name "*.tar" -o -name "*.gz" 2>/dev/null | wc -l)
 echo "Symbolic links = "$(find $1 2>/dev/null -type l | wc -l)
 echo "TOP 10 files of maximum size arranged in descending order (path, size and type): "
-for (( i=1; i < 11; i++ ))
-do 
-    tmp=$(find $1 -type f -exec du -h {} + 2>/dev/null | sort -hr | cat -n | sed -n "${i}p")
-    if [ "$tmp" == "" ]; then
-        break;
-    fi
-    ext=$( echo "$tmp" |  awk '{print $3}') 
-    b="${ext##*.}"
-    echo $i - $(echo "$tmp" |  awk '{print $3 ", " $2}'), $b
-done
+find "$1" -type f -exec du -h {} + 2>/dev/null | sort -hr | head -10 | awk 'BEGIN {i=1} {
+    path=$2;
+    extension="";
+    split(path, arr, ".");
+    if (length(arr) > 1) {
+        extension=arr[length(arr)];
+    }
+    if (extension ~/^[0-9]+$|\/|-/) {
+        extension="";
+    }
+    print i" - "path", "$1", "extension;
+    i++;
+}'
+
 echo "TOP 10 executable files of the maximum size arranged in descending order (path, size and MD5 hash of file)"
 
 find $1 -type f -executable -exec du -h {} + 2>/dev/null | sort -hr | head -10 | awk 'BEGIN {i=1} { 
@@ -248,13 +324,24 @@ fi
 
 function print_colors() {
     error=""
+    col_one_back=$1
+    col_one_font=$2
+    col_two_back=$3
+    col_two_font=$4
     if [ "$5" != "" ]; then
-        error="(default)"
+        error="default"
+        col_one_back=""
+        col_one_font=""
+        col_two_back=""
+        col_two_font=""
     fi
 # echo $1 $2 $3 $4
 echo ""
-echo "Column 1 background = $1 $error $(get_color $1)"
-echo "Column 1 font color = $2 $error $(get_color $2)"
-echo "Column 2 background = $3 $error $(get_color $3)"
-echo "Column 2 font color = $4 $error $(get_color $4)"
+echo "Column 1 background = $col_one_back$error $(get_color $1)"
+echo "Column 1 font color = $col_one_font$error $(get_color $2)"
+echo "Column 2 background = $col_two_back$error $(get_color $3)"
+echo "Column 2 font color = $col_two_font$error $(get_color $4)"
 }
+
+
+
