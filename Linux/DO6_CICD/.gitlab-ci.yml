@@ -1,0 +1,67 @@
+stages:
+  - start
+  - build
+  - code_style
+  - test
+  - deploy
+
+notify_start:
+  stage: start
+  script:
+    - cd src
+    - sh notifier.sh "%0A%0A============START PROJECT============" "start";
+
+build:
+  stage: build
+  script:
+    - cd src/cat/
+    - make s21_cat
+    - cd ..
+    - cd grep/
+    - make s21_grep
+  after_script:
+    - cd src
+    - sh notifier.sh "Build";
+  artifacts:
+    untracked: true
+    paths:
+    - src/cat/s21_cat
+    - src/grep/s21_grep
+    expire_in: 30 days
+    
+code_style_check:
+  stage: code_style
+  needs: ["build"]
+  script:
+    - clang-format --Werror -style=Google -n $(find src/cat src/grep -name '*.c' -o -name '*.h')
+  after_script:
+    - cd src
+    - sh notifier.sh "Style";
+
+
+
+integration_tests:
+  stage: test
+  needs: ["build", "code_style_check"]
+  script:
+    - cd src/cat/
+    - make test
+    - cd ..
+    - cd grep/
+    - make test
+  after_script:
+    - cd src
+    - sh notifier.sh "Integration tests";
+
+
+copy:
+  stage: deploy
+  when: manual
+  script:
+    - cd src
+    - chmod +x deploy.sh
+    - ./deploy.sh
+  after_script:
+    - cd src
+    - sh notifier.sh "Deploy on VirtualBox";
+  allow_failure: false
