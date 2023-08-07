@@ -23,5 +23,5 @@ WITH top3_visit as (SELECT name, count, action_type
     )
 select * from top6
 order by action_type, count DESC;
-
-select * from person_visits;
+--
+-- select * from person_visits;

@@ -14,3 +14,5 @@ EXECUTE FUNCTION fnc_trg_person_delete_audit();
 
 
 DELETE FROM person WHERE id = 10;
+
+select * from person;

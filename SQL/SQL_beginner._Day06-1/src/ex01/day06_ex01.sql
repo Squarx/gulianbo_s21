@@ -18,4 +18,3 @@ from name_cnt_order
 INSERT INTO person_discounts (id, person_id, pizzeria_id, discount)
 SELECT ROW_NUMBER() OVER () AS id, person_id, pizzeria_id, discount
 FROM person_pizzeria_discout;
-

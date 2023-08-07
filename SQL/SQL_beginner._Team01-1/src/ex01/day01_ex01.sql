@@ -40,9 +40,8 @@ select coalesce(tmp.name, 'not defined') as name,
 from currency_attributes
     left join (select * from balance b
                    left join "user" on b.user_id = "user".id
-                   ) as tmp  on currency_attributes.currency_id = tmp.currency_id
+                   order by name) as tmp  on currency_attributes.currency_id = tmp.currency_id
 order by name desc, lastname, currency_name;
-
 
 
 with test as (

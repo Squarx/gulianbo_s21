@@ -134,7 +134,9 @@ insert into person_order values (18,8, 14, '2022-01-07');
 
 insert into person_order values (19,9, 18, '2022-01-09');
 insert into person_order values (20,9, 6, '2022-01-10');
-----------------------------------------------------------------------------
+
+
+
 insert into menu values (19,2,'greek pizza', 800);
 INSERT INTO menu(id, pizzeria_id, pizza_name, price)
 VALUES ((SELECT max(id) + 1 FROM menu),
@@ -176,7 +178,6 @@ WITH ind_range AS (
                 from ind_range join person p
                          on p.id = ind_range.index - ((SELECT MAX(id) FROM person_order)))
 
--- select * from tbl_CTE;
 INSERT INTO person_order(id, person_id, menu_id, order_date)
 SELECT tbl_CTE.id,
        tbl_CTE.person_id,
@@ -192,94 +193,9 @@ WHERE pizza_name = 'greek pizza';
 ----------------------------------------------------------------------------
 
 
-
-
-CREATE VIEW v_persons_female AS
-SELECT *
-FROM person
-WHERE gender = 'female';
-
-CREATE VIEW v_persons_male AS
-SELECT *
-FROM person
-WHERE gender = 'male';
-
-with united_mpa_CTE as (SELECT *
-                        FROM v_persons_female
-                        union all
-                        SELECT *
-                        FROM v_persons_male)
-SELECT name FROM united_mpa_CTE
-ORDER BY name;
-DROP VIEW IF EXISTS v_generated_dates;
-CREATE OR REPLACE VIEW v_generated_dates AS
-SELECT generate_series::date AS generated_date
-FROM generate_series('2022-01-01'::DATE, '2022-01-31'::DATE, '1 day'::INTERVAL);
-CREATE OR REPLACE VIEW v_symmetric_union AS
-WITH R AS (SELECT *
-           FROM person_visits
-           WHERE visit_date = '2022-01-02'),
-     S AS (SELECT *
-           FROM person_visits
-           WHERE visit_date = '2022-01-06'),
-     R_S AS (SELECT person_id
-             FROM R
-             EXCEPT
-             SELECT person_id
-             FROM S),
-     S_R AS (SELECT person_id
-             FROM S
-             EXCEPT
-             SELECT person_id
-             FROM R)
-SELECT person_id
-FROM R_S
-UNION
-SELECT person_id
-FROM S_R
-ORDER BY person_id;
-CREATE OR REPLACE VIEW v_price_with_discount AS
-SELECT p.name                     as name,
-       m.pizza_name               as pizza_name,
-       price,
-       round(price - price * 0.1) as discount_price
-from person_order
-         join person p on person_order.person_id = p.id
-         join menu m on person_order.menu_id = m.id
-order by name, pizza_name;
-
-CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats as
-select pz.name as pizzeria_name
-from person_visits
-         inner join person p on p.id = person_visits.person_id
-         inner join pizzeria pz on pz.id = person_visits.pizzeria_id
-         inner join menu m on pz.id = m.pizzeria_id
-where p.name = 'Dmitriy'
-  and visit_date = '2022-01-08'
-  and price < 800;
-select pz.name as pizzeria_name
-from person_visits
-         inner join person p on p.id = person_visits.person_id
-         inner join pizzeria pz on pz.id = person_visits.pizzeria_id
-         inner join menu m on pz.id = m.pizzeria_id
-where p.name = 'Dmitriy'
-  and visit_date = '2022-01-08'
-  and price < 800;
-
-
--- +1 greek pizza (720) не удалял после 03
 INSERT INTO person_visits
 SELECT MAX(id) + 1,
        (SELECT id FROM person WHERE name = 'Dmitriy'),
-       (SELECT id FROM pizzeria WHERE name = 'Dominos'),
+       (SELECT id FROM pizzeria WHERE name = 'DoDo Pizza'),
        DATE '2022-01-08'
 FROM person_visits;
-
-
-REFRESH MATERIALIZED VIEW mv_dmitriy_visits_and_eats;
-DROP VIEW IF EXISTS v_generated_dates,
-    v_persons_male,
-    v_persons_female,
-    v_price_with_discount,
-    v_symmetric_union;
-DROP MATERIALIZED VIEW IF EXISTS mv_dmitriy_visits_and_eats;
